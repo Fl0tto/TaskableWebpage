@@ -17,7 +17,7 @@ type GLTFResult = GLTF & {
 }
 
 export function Model(props: React.ComponentProps<'group'>) {
-  const { nodes, materials } = useGLTF('/RocketThrust.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(import.meta.env.BASE_URL + 'RocketThrust.glb') as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Thrust.geometry} material={materials.M_White} rotation={[0, 0, -0.428]} scale={0.365} />
@@ -27,4 +27,4 @@ export function Model(props: React.ComponentProps<'group'>) {
 
 export default Model
 
-useGLTF.preload('/RocketThrust.glb')
+useGLTF.preload(import.meta.env.BASE_URL + 'RocketThrust.glb')

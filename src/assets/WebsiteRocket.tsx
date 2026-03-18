@@ -21,7 +21,7 @@ type GLTFResult = GLTF & {
 }
 
 export function Model(props: React.ComponentProps<'group'>) {
-  const { nodes, materials } = useGLTF('/WebsiteRocket.glb') as unknown as GLTFResult
+  const { nodes, materials } = useGLTF(import.meta.env.BASE_URL + 'WebsiteRocket.glb') as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Plane001.geometry} material={materials.M_RedTip} />
@@ -31,4 +31,4 @@ export function Model(props: React.ComponentProps<'group'>) {
   )
 }
 
-useGLTF.preload('/WebsiteRocket.glb')
+useGLTF.preload(import.meta.env.BASE_URL + 'WebsiteRocket.glb')

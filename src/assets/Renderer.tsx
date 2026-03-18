@@ -59,7 +59,18 @@ const CameraRig = () => {
     const to = CAMERA_PATH[segment + 1]
 
     camera.position.lerpVectors(from.position, to.position, t)
-    camera.lookAt(ROCKET_POS)
+  camera.lookAt(ROCKET_POS)
+
+  // Derive right vector from camera's current orientation
+  const forward = new Vector3()
+  camera.getWorldDirection(forward)
+  const right = new Vector3()
+  right.crossVectors(forward, camera.up).normalize()
+
+  const lookTarget = ROCKET_POS.clone().add(
+    right.multiplyScalar(4)
+  )
+  camera.lookAt(lookTarget)
   })
 
   return null
@@ -156,12 +167,16 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
   }, [effect])
 
   useEffect(() => {
+  if (size.width > 0 && size.height > 0) {
     effect.setSize(size.width, size.height)
-  }, [effect, size])
+  }
+}, [effect, size])
 
   useFrame((state) => {
+  if (size.width > 0 && size.height > 0) {
     effect.render(scene, camera)
-  }, 1)
+  }
+}, 1)
 
   return null
 }
