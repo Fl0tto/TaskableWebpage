@@ -150,7 +150,7 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
   const isReady = useRef(false)
 
   const effect = useMemo(() => {
-    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: 0.07 })
+    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: 0.11 })
     effect.domElement.style.position = 'absolute'
     effect.domElement.style.top = '0px'
     effect.domElement.style.left = '0px'
