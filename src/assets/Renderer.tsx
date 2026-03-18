@@ -11,9 +11,9 @@ import Lenis from "lenis"
 const ROCKET_POS = new Vector3(0, 0, 0)
 
 const CAMERA_PATH = [
-  new Vector3(3,   5,  10),  // start — front
-  new Vector3(-5,  7,   7),  // gentler mid point, not so far left
-  new Vector3(-8,  10, -2),  // end — behind and above
+  new Vector3(3,   6,  10),  // start — front
+  new Vector3(-5,  8,   7),  // gentler mid point, not so far left
+  new Vector3(-8,  11, -2),  // end — behind and above
 ]
 
 const CAMERA_CURVE = new CatmullRomCurve3(CAMERA_PATH)
@@ -28,8 +28,8 @@ const CameraRig = () => {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.5,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 2.5,
+      easing: (t) => 1 - Math.pow(1 - t, 4), // quartic ease-out
     })
 
     const handleScroll = () => {

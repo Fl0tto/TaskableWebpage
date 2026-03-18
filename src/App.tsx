@@ -20,7 +20,7 @@ function App() {
 
   return (
     
-      <div style={{ height: '400vh' }}>
+    <div style={{ height: '200vh' }}>
     <div style={{ position: 'sticky', top: 0, height: '100vh' }}>
       <Renderer />
     </div>
