@@ -13,3 +13,15 @@ html, body, #root {
   height: 100%;
   background-color: var(--main-bg-color);
 }
+
+html {
+  width: 100%;
+  height: 100%;
+  background-color: var(--main-bg-color);
+  overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}

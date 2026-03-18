@@ -3,17 +3,15 @@ import { AsciiEffect } from 'three-stdlib'
 import { useRef, useEffect, useMemo, useState } from "react"
 import { Model as WebsiteRocket } from "./WebsiteRocket"
 import { Model as RocketThrust } from "./RocketThrust"
-
 import { Mesh, Vector3, CatmullRomCurve3} from "three"
 import * as THREE from "three"
-import Lenis from "lenis"
 
 const ROCKET_POS = new Vector3(0, 0, 0)
 
 const CAMERA_PATH = [
-  new Vector3(3,   6,  10),  // start — front
-  new Vector3(-5,  8,   7),  // gentler mid point, not so far left
-  new Vector3(-8,  11, -2),  // end — behind and above
+  new Vector3(3,  7,  10),  // start — front
+  new Vector3(-5,  9,   7),  // gentler mid point, not so far left
+  new Vector3(-8,  10, -2),  // end — behind and above
 ]
 
 const CAMERA_CURVE = new CatmullRomCurve3(CAMERA_PATH)
@@ -27,49 +25,26 @@ const CameraRig = () => {
   const progress = useRef(0)
 
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 2.5,
-      easing: (t) => 1 - Math.pow(1 - t, 4), // quartic ease-out
-    })
-
     const handleScroll = () => {
-      const scrollTop = window.scrollY
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight
-      progress.current = scrollTop / maxScroll
-    }
-
+    const scrollTop = window.scrollY
+    const rendererHeight = window.innerHeight * 1 // 400vh
+    progress.current = Math.min(scrollTop / rendererHeight, 1)
+  }
     window.addEventListener("scroll", handleScroll)
-
-    const raf = (time: number) => {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
-    }
-    requestAnimationFrame(raf)
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll)
-      lenis.destroy()
-    }
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   useFrame(() => {
     const p = progress.current
-
-    // Get smooth position along curve
-    const pos = CAMERA_CURVE.getPoint(p)
+    const pos = CAMERA_CURVE.getPoint(Math.min(p, 1))
     camera.position.copy(pos)
 
     camera.lookAt(ROCKET_POS)
-
-    // Derive right vector from camera's current orientation
     const forward = new Vector3()
     camera.getWorldDirection(forward)
     const right = new Vector3()
     right.crossVectors(forward, camera.up).normalize()
-
-    const lookTarget = ROCKET_POS.clone().add(
-      right.multiplyScalar(6)
-    )
+    const lookTarget = ROCKET_POS.clone().add(right.multiplyScalar(6))
     camera.lookAt(lookTarget)
   })
 
@@ -154,11 +129,13 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
     effect.domElement.style.position = 'absolute'
     effect.domElement.style.top = '0px'
     effect.domElement.style.left = '0px'
+    effect.domElement.style.overflow = 'hidden'
+    effect.domElement.style.whiteSpace = 'pre'
     effect.domElement.style.color = '#C8922A'
     effect.domElement.style.backgroundColor = '#1C2B35'
     effect.domElement.style.pointerEvents = 'none'
     return effect
-  }, [characters, options.invert])
+  }, [characters, options.invert, gl])
 
   useEffect(() => {
     const parent = gl.domElement.parentNode

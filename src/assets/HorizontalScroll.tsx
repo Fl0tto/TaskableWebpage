@@ -3,7 +3,6 @@ import { Box, Typography } from '@mui/material';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis'; // Make sure to install: npm install lenis
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,17 +13,7 @@ const HorizontalScroll = () => {
     // 1. Initialize Lenis for smooth scrolling
     // Note: If you already have Lenis wrapping your App globally, 
     // you can remove this local instantiation.
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
 
-    lenis.on('scroll', ScrollTrigger.update);
-
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-    gsap.ticker.lagSmoothing(0);
 
     // 2. Stacked Scroll Logic
     const cards = gsap.utils.toArray<HTMLElement>('.stacked-card');
@@ -49,7 +38,7 @@ const HorizontalScroll = () => {
           pin: true,
           scrub: 1,
           start: 'center center',
-          end: '+=200%', // 200% of viewport height scrolling duration
+          end: '+=90%', // 200% of viewport height scrolling duration
         },
       });
 
@@ -69,11 +58,6 @@ const HorizontalScroll = () => {
       })
       .from(cards[2].querySelector('.animated-text'), { y: 50, opacity: 0, duration: 0.4, ease: 'power2.out' }, "-=0.4");
     }
-
-    return () => {
-      lenis.destroy();
-      gsap.ticker.remove(lenis.raf);
-    };
   }, { scope: containerRef });
 
   const cardsData = [
