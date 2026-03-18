@@ -3,17 +3,20 @@ import { AsciiEffect } from 'three-stdlib'
 import { useRef, useEffect, useMemo, useState } from "react"
 import { Model as WebsiteRocket } from "./WebsiteRocket"
 import { Model as RocketThrust } from "./RocketThrust"
-import { Mesh, Vector3 } from "three"
+
+import { Mesh, Vector3, CatmullRomCurve3} from "three"
 import * as THREE from "three"
 import Lenis from "lenis"
 
 const ROCKET_POS = new Vector3(0, 0, 0)
 
 const CAMERA_PATH = [
-  { position: new Vector3(3,  6,  13) },
-  { position: new Vector3(-8, 10,   5) },
-  { position: new Vector3(-4, 14, -10) },
+  new Vector3(3,   5,  10),  // start — front
+  new Vector3(-5,  7,   7),  // gentler mid point, not so far left
+  new Vector3(-8,  10, -2),  // end — behind and above
 ]
+
+const CAMERA_CURVE = new CatmullRomCurve3(CAMERA_PATH)
 
 const lerp = (current: number, target: number, interpolation: number) =>
   current + interpolation * (target - current)
@@ -51,26 +54,23 @@ const CameraRig = () => {
 
   useFrame(() => {
     const p = progress.current
-    const segments = CAMERA_PATH.length - 1
-    const segment = Math.min(Math.floor(p * segments), segments - 1)
-    const t = (p * segments) - segment
 
-    const from = CAMERA_PATH[segment]
-    const to = CAMERA_PATH[segment + 1]
+    // Get smooth position along curve
+    const pos = CAMERA_CURVE.getPoint(p)
+    camera.position.copy(pos)
 
-    camera.position.lerpVectors(from.position, to.position, t)
-  camera.lookAt(ROCKET_POS)
+    camera.lookAt(ROCKET_POS)
 
-  // Derive right vector from camera's current orientation
-  const forward = new Vector3()
-  camera.getWorldDirection(forward)
-  const right = new Vector3()
-  right.crossVectors(forward, camera.up).normalize()
+    // Derive right vector from camera's current orientation
+    const forward = new Vector3()
+    camera.getWorldDirection(forward)
+    const right = new Vector3()
+    right.crossVectors(forward, camera.up).normalize()
 
-  const lookTarget = ROCKET_POS.clone().add(
-    right.multiplyScalar(4)
-  )
-  camera.lookAt(lookTarget)
+    const lookTarget = ROCKET_POS.clone().add(
+      right.multiplyScalar(6)
+    )
+    camera.lookAt(lookTarget)
   })
 
   return null
@@ -129,13 +129,13 @@ const Rocket = ({ position }: { position: [number, number, number] }) => {
 
   useFrame(() => {
     if (reference.current) {
-      reference.current.rotation.y = Math.PI * mouse.x + mouse.y * 1.66
+      reference.current.rotation.y = Math.PI * - mouse.x + mouse.y * 1.66
     }
   })
 
   return (
     <>
-      <group position={position} rotation={[0, Math.PI, Math.PI * 0.1388888889]} scale={0.77}>
+      <group position={position} rotation={[0, Math.PI, Math.PI * 0.1388888889]} scale={0.88}>
         <WebsiteRocket ref={reference} />
         <StarParticles />
       </group>
@@ -147,9 +147,10 @@ const Rocket = ({ position }: { position: [number, number, number] }) => {
 // ─── ASCII Renderer ───────────────────────────────────────────────────────────
 function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) {
   const { size, gl, scene, camera } = useThree()
+  const isReady = useRef(false)
 
   const effect = useMemo(() => {
-    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: 0.1 })
+    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: 0.07 })
     effect.domElement.style.position = 'absolute'
     effect.domElement.style.top = '0px'
     effect.domElement.style.left = '0px'
@@ -167,16 +168,16 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
   }, [effect])
 
   useEffect(() => {
-  if (size.width > 0 && size.height > 0) {
-    effect.setSize(size.width, size.height)
-  }
-}, [effect, size])
+    if (size.width > 0 && size.height > 0) {
+      effect.setSize(size.width, size.height)
+      isReady.current = true  // ← only allow rendering after valid size is set
+    }
+  }, [effect, size])
 
   useFrame((state) => {
-  if (size.width > 0 && size.height > 0) {
+    if (!isReady.current) return  // ← guard here
     effect.render(scene, camera)
-  }
-}, 1)
+  }, 1)
 
   return null
 }
