@@ -61,9 +61,9 @@ const HorizontalScroll = () => {
   }, { scope: containerRef });
 
   const cardsData = [
-    { id: 1, title: 'Red Layer', color: '#ff4d4d', text: 'This is the foundational layer.' },
-    { id: 2, title: 'Green Layer', color: '#4caf50', text: 'Stacks over the red layer, leaving 3% visible.' },
-    { id: 3, title: 'Blue Layer', color: '#2196f3', text: 'Stacks over the green layer with a 7-degree skew.' },
+    { id: 1, title: 'Red Layer', color: '#E8D5A3', text: 'This is the foundational layer.' },
+    { id: 2, title: 'Green Layer', color: '#5BBFB5', text: 'Stacks over the red layer, leaving 3% visible.' },
+    { id: 3, title: 'Blue Layer', color: '#C8922A', text: 'Stacks over the green layer with a 7-degree skew.' },
   ];
 
   return (
@@ -81,7 +81,7 @@ const HorizontalScroll = () => {
     >
       <Box
         sx={{
-          height: '90vh',
+          height: '85vh',
           width: '100vw',
           position: 'relative',
           overflow: 'hidden',
@@ -97,20 +97,29 @@ const HorizontalScroll = () => {
               left: 0,
               width: '100vw',
               height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: card.color,
               zIndex: index,
               transform: index === 0 ? 'translateX(0)' : 'translateX(100vw)',
-              // Apply a ~7 degree skew (tan(7°) ≈ 0.122 -> 11vh / 90vh ≈ 0.122)
-              clipPath: index === 0 ? 'none' : 'polygon(11vh 0, 100% 0, 100% 100%, 0 100%)',
+              // Drop shadow applied to parent traces the child's clipped shape
+              filter: index === 0 ? 'none' : 'drop-shadow(-12px 0px 24px rgba(0, 0, 0, 0.35))',
             }}
           >
-            <Box className="animated-text" sx={{ textAlign: 'center', color: '#fff', px: 4, ml: index > 0 ? '5.5vh' : 0 }}>
-              <Typography variant="h2" sx={{ fontWeight: 800, mb: 2 }}>{card.title}</Typography>
-              <Typography variant="h5" sx={{ opacity: 0.9 }}>{card.text}</Typography>
+            <Box
+              sx={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: card.color,
+                // Apply a ~7 degree skew (tan(7°) ≈ 0.122 -> 11vh / 90vh ≈ 0.122)
+                clipPath: index === 0 ? 'none' : 'polygon(11vh 0, 100% 0, 100% 100%, 0 100%)',
+              }}
+            >
+              <Box className="animated-text" sx={{ textAlign: 'center', color: '#fff', px: 4, ml: index > 0 ? '5.5vh' : 0 }}>
+                <Typography variant="h2" sx={{ fontWeight: 800, mb: 2 }}>{card.title}</Typography>
+                <Typography variant="h5" sx={{ opacity: 0.9 }}>{card.text}</Typography>
+              </Box>
             </Box>
           </Box>
         ))}
