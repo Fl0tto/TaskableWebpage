@@ -42,7 +42,7 @@ const CameraRig = () => {
     const pos = CAMERA_CURVE.getPoint(Math.min(p, 1))
     camera.position.copy(pos)
 
-    camera.lookAt(isMobile? ROCKET_POS : ROCKET_POS.clone().add(new Vector3(0,  2,  0)))
+    camera.lookAt(isMobile? ROCKET_POS.clone().add(new Vector3(0,  2,  0)) : ROCKET_POS)
     
     if(!isMobile){
       const forward = new Vector3()
@@ -135,7 +135,7 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const effect = useMemo(() => {
-    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: isMobile ? 0.14 : 0.11 })
+    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: isMobile ? 0.16 : 0.11 })
     effect.domElement.style.position = 'absolute'
     effect.domElement.style.top = '0px'
     effect.domElement.style.left = '0px'

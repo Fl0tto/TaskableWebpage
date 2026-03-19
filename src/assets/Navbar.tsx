@@ -34,8 +34,8 @@ const Navbar = () => {
           if (isDesktop) setFluidVisible(true)
 
           gsap.to(nav, {
-            backgroundColor: isDesktop ? 'rgba(255, 255, 255, 0.166)' : 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: isDesktop ? 'blur(4px)' : 'blur(8px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.166)',
+            backdropFilter: 'blur(4px)',
             border: '1px solid rgba(91, 191, 181, 0.2)',
             duration: 0.8,
             ease: 'power2.out'
