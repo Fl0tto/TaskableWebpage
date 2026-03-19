@@ -23,7 +23,7 @@ const Navbar = () => {
         setFluidVisible(true)  // ← mount fluid when navbar becomes visible
         gsap.to(nav, {
           backgroundColor: 'rgba(255, 255, 255, 0.166)',
-          backdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(2px)',
           border: '1px solid rgba(91, 191, 181, 0.2)',
           duration: 0.8,
           ease: 'power2.out'
@@ -58,14 +58,14 @@ const Navbar = () => {
       {fluidVisible && (
         <Box sx={{
           position: 'fixed',
-          top: '24px',           // ← match navbar top exactly
+          top: 24,           // ← match navbar top exactly
           left: '50%',
           transform: 'translateX(-50%)',
           width: '90%',
           maxWidth: 1200,
-          height: '56px',        // ← match navbar pill height exactly
+          height: '4.5rem',        // ← match navbar pill height exactly
           zIndex: 999,
-          borderRadius: '50px',
+          borderRadius: '56px',
           overflow: 'hidden',    // ← this clips the fluid to the pill
           pointerEvents: 'auto'
         }}>
@@ -80,8 +80,8 @@ const Navbar = () => {
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: 1000,
+          height: '4.5rem',
           width: '90%',
-          maxHeight: '2rem',
           maxWidth: 1200,
         }}
       >
@@ -91,8 +91,9 @@ const Navbar = () => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            px: 4,
+            height: '100%',
             py: 2,
+            px: 4,
             borderRadius: '50px',
             color: '#C8922A',
             backgroundColor: 'transparent',

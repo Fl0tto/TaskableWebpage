@@ -44,7 +44,7 @@ const CameraRig = () => {
     camera.getWorldDirection(forward)
     const right = new Vector3()
     right.crossVectors(forward, camera.up).normalize()
-    const lookTarget = ROCKET_POS.clone().add(right.multiplyScalar(5.6))
+    const lookTarget = ROCKET_POS.clone().add(right.multiplyScalar(5.6)).add(new Vector3(0,  2,  0))
     camera.lookAt(lookTarget)
   })
 
