@@ -23,7 +23,7 @@ const Navbar = () => {
       isDesktop: "(min-width: 900px)",
       isMobile: "(max-width: 899px)"
     }, (context) => {
-      const { isDesktop } = context.conditions as { isDesktop: boolean };
+      const { isDesktop, isMobile } = context.conditions as { isDesktop: boolean, isMobile: boolean };
 
       ScrollTrigger.create({
         start: () => `top -${window.innerHeight * (isDesktop ? 1.1 : 0.5)}`, // Triggers earlier on mobile
@@ -54,6 +54,24 @@ const Navbar = () => {
           gsap.to(nav, { color: '#C8922A', duration: 0.4, ease: 'power2.out' })
         }
       })
+
+      if (isMobile && nav) {
+        // Start at the bottom, then scrub back to the top synchronously with the Renderer exit
+        gsap.fromTo(nav,
+          { y: () => window.innerHeight - nav.offsetHeight - 48 }, // 24px mirrored top & bottom
+          {
+            y: 0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: document.body,
+              start: '100vh top',
+              end: '400vh top',
+              scrub: true,
+              invalidateOnRefresh: true
+            }
+          }
+        );
+      }
     });
   }, { scope: navRef })
 
