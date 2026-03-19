@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Taskable.app",
+  "homepage": "Fl0tto.github.io/TaskableWebpage",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
