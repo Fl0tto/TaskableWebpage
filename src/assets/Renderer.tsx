@@ -135,7 +135,7 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const effect = useMemo(() => {
-    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: isMobile ? 0.16 : 0.11 })
+    const effect = new AsciiEffect(gl, characters, { invert: false, resolution: isMobile ? 0.17 : 0.11 })
     effect.domElement.style.position = 'absolute'
     effect.domElement.style.top = '0px'
     effect.domElement.style.left = '0px'
@@ -143,7 +143,7 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
     effect.domElement.style.whiteSpace = 'pre'
     effect.domElement.style.textAlign = 'center'
     effect.domElement.style.letterSpacing = 'normal'
-    effect.domElement.style.fontFamily = 'monospace'
+    effect.domElement.style.fontFamily = "'Courier New', Courier, monospace"
     effect.domElement.style.margin = '0'
     effect.domElement.style.padding = '0'
     effect.domElement.style.lineHeight = '1'

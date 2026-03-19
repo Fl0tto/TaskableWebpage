@@ -58,7 +58,7 @@ const Navbar = () => {
       if (isMobile && nav) {
         // Start at the bottom, then scrub back to the top synchronously with the Renderer exit
         gsap.fromTo(nav,
-          { y: () => window.innerHeight - nav.offsetHeight - 48 }, // 24px mirrored top & bottom
+          { y: () => `calc(100svh - ${nav.offsetHeight}px - 48px)` }, // 'svh' keeps it strictly in the safe area even when the address bar is visible
           {
             y: 0,
             ease: 'none',
