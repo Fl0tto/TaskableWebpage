@@ -44,7 +44,7 @@ const HorizontalScroll = () => {
 
       // Animate Green Layer to x: 3vw
       tl.to(cards[1], {
-        x: '3vw',
+        x: '-4vw',
         ease: 'none',
         duration: 1,
       })
@@ -52,7 +52,7 @@ const HorizontalScroll = () => {
 
       // Animate Blue Layer to x: 6vw
       tl.to(cards[2], {
-        x: '6vw',
+        x: '0vw',
         ease: 'none',
         duration: 1,
       })
@@ -73,7 +73,7 @@ const HorizontalScroll = () => {
         height: '100vh',
         width: '100vw',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
         position: 'relative',
         backgroundColor: '#1C2B35',
@@ -81,7 +81,7 @@ const HorizontalScroll = () => {
     >
       <Box
         sx={{
-          height: '85vh',
+          height: '92.5vh',
           width: '100vw',
           position: 'relative',
           overflow: 'hidden',
