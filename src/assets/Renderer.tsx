@@ -42,7 +42,7 @@ const CameraRig = () => {
     const pos = CAMERA_CURVE.getPoint(Math.min(p, 1))
     camera.position.copy(pos)
 
-    camera.lookAt(ROCKET_POS)
+    camera.lookAt(isMobile? ROCKET_POS : ROCKET_POS.clone().add(new Vector3(0,  -2,  0))
     
     if(!isMobile){
       const forward = new Vector3()
