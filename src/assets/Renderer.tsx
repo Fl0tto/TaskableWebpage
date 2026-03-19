@@ -4,6 +4,7 @@ import { useRef, useEffect, useMemo, useState } from "react"
 import { Model as WebsiteRocket } from "./WebsiteRocket"
 import { Model as RocketThrust } from "./RocketThrust"
 import { Mesh, Vector3, CatmullRomCurve3} from "three"
+import { useMediaQuery, useTheme } from "@mui/material"
 import * as THREE from "three"
 
 const ROCKET_POS = new Vector3(0, 0, 0)
@@ -23,6 +24,8 @@ const lerp = (current: number, target: number, interpolation: number) =>
 const CameraRig = () => {
   const { camera } = useThree()
   const progress = useRef(0)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,12 +43,15 @@ const CameraRig = () => {
     camera.position.copy(pos)
 
     camera.lookAt(ROCKET_POS)
-    const forward = new Vector3()
-    camera.getWorldDirection(forward)
-    const right = new Vector3()
-    right.crossVectors(forward, camera.up).normalize()
-    const lookTarget = ROCKET_POS.clone().add(right.multiplyScalar(5.6)).add(new Vector3(0,  2,  0))
-    camera.lookAt(lookTarget)
+    
+    if(!isMobile){
+      const forward = new Vector3()
+      camera.getWorldDirection(forward)
+      const right = new Vector3()
+      right.crossVectors(forward, camera.up).normalize()
+      const lookTarget = ROCKET_POS.clone().add(right.multiplyScalar(5.6)).add(new Vector3(0,  2,  0))
+      camera.lookAt(lookTarget)
+    }
   })
 
   return null
@@ -101,20 +107,22 @@ const StarParticles = () => {
 const Rocket = ({ position }: { position: [number, number, number] }) => {
   const reference = useRef<Mesh>(null!)
   const { mouse } = useThree()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   useFrame(() => {
-    if (reference.current) {
+    if (reference.current && !isMobile) {
       reference.current.rotation.y = Math.PI * - mouse.x + mouse.y * 1.66
     }
   })
 
   return (
     <>
-      <group position={position} rotation={[0, Math.PI, Math.PI * 0.1388888889]} scale={0.88}>
+      <group position={position} rotation={isMobile ? [0, 0, 0] : [0, Math.PI, Math.PI * 0.1388888889]} scale={0.88}>
         <WebsiteRocket ref={reference} />
         <StarParticles />
       </group>
-      <RocketThrust position={position} />
+      {!isMobile && <RocketThrust position={position} />}
     </>
   )
 }
@@ -167,8 +175,11 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
 
 // ─── Renderer ─────────────────────────────────────────────────────────────────
 const Renderer = () => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  
   return (
-    <Canvas camera={{ position: [3, 4, 13], fov: 50 }}>
+    <Canvas camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}>
       <AsciiRenderer />
       <directionalLight position={[-20, 4, 10]} />
       <ambientLight intensity={0.1} />

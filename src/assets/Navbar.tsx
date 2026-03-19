@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Box, Typography, IconButton } from '@mui/material';
+import { Box, Typography, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import { Menu } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -11,51 +11,56 @@ gsap.registerPlugin(ScrollTrigger);
 const Navbar = () => {
   const navRef = useRef<HTMLDivElement>(null);
   const [fluidVisible, setFluidVisible] = useState(false)
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md')); // 'md' is 900px
 
   useGSAP(() => {
     const nav = navRef.current;
+    const mm = gsap.matchMedia();
 
-    ScrollTrigger.create({
-      start: () => `top -${window.innerHeight * 1.1}`,
-      end: 99999,
-      toggleClass: { targets: nav, className: 'scrolled' },
-      onEnter: () => {
-        setFluidVisible(true)  // ← mount fluid when navbar becomes visible
-        gsap.to(nav, {
-          backgroundColor: 'rgba(255, 255, 255, 0.166)',
-          backdropFilter: 'blur(2px)',
-          border: '1px solid rgba(91, 191, 181, 0.2)',
-          duration: 0.8,
-          ease: 'power2.out'
-        })
-        gsap.to(nav, {
-          color: '#1A1A1A',
-          duration: 0.4,
-          ease: 'power2.out'
-        })
-      },
-      onLeaveBack: () => {
-        setFluidVisible(false)  // ← unmount fluid when scrolling back to top
-        gsap.to(nav, {
-          backgroundColor: 'transparent',
-          backdropFilter: 'blur(0px)',
-          border: '1px solid transparent',
-          duration: 0.8,
-          ease: 'power2.out'
-        })
-        gsap.to(nav, {
-          color: '#C8922A',
-          duration: 0.4,
-          ease: 'power2.out'
-        })
-      }
-    })
+    // Setup responsive animations
+    mm.add({
+      isDesktop: "(min-width: 900px)",
+      isMobile: "(max-width: 899px)"
+    }, (context) => {
+      const { isDesktop } = context.conditions as { isDesktop: boolean };
+
+      ScrollTrigger.create({
+        start: () => `top -${window.innerHeight * (isDesktop ? 1.1 : 0.5)}`, // Triggers earlier on mobile
+        end: 99999,
+        toggleClass: { targets: nav, className: 'scrolled' },
+        onEnter: () => {
+          // Only mount the heavy fluid effect on desktop
+          if (isDesktop) setFluidVisible(true)
+
+          gsap.to(nav, {
+            backgroundColor: isDesktop ? 'rgba(255, 255, 255, 0.166)' : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: isDesktop ? 'blur(2px)' : 'blur(8px)',
+            border: '1px solid rgba(91, 191, 181, 0.2)',
+            duration: 0.8,
+            ease: 'power2.out'
+          })
+          gsap.to(nav, { color: '#1A1A1A', duration: 0.4, ease: 'power2.out' })
+        },
+        onLeaveBack: () => {
+          setFluidVisible(false)
+          gsap.to(nav, {
+            backgroundColor: 'transparent',
+            backdropFilter: 'blur(0px)',
+            border: '1px solid transparent',
+            duration: 0.8,
+            ease: 'power2.out'
+          })
+          gsap.to(nav, { color: '#C8922A', duration: 0.4, ease: 'power2.out' })
+        }
+      })
+    });
   }, { scope: navRef })
 
   return (
     <>
       {/* Fluid sim renders behind navbar, clipped to navbar area */}
-      {fluidVisible && (
+      {fluidVisible && !isMobile && (
         <Box sx={{
           position: 'fixed',
           top: 24,           // ← match navbar top exactly
