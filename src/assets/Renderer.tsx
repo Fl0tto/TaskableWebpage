@@ -134,6 +134,15 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
+  // Dynamically load JetBrains Mono just for this component
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.href = 'https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap'
+    link.rel = 'stylesheet'
+    document.head.appendChild(link)
+    return () => void document.head.removeChild(link)
+  }, [])
+
   const effect = useMemo(() => {
     const effect = new AsciiEffect(gl, characters, { invert: false, resolution: isMobile ? 0.17 : 0.11 })
     effect.domElement.style.position = 'absolute'
@@ -143,7 +152,7 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
     effect.domElement.style.whiteSpace = 'pre'
     effect.domElement.style.textAlign = 'center'
     effect.domElement.style.letterSpacing = 'normal'
-    effect.domElement.style.fontFamily = "'Courier New', Courier, monospace"
+    effect.domElement.style.fontFamily = "'JetBrains Mono', 'Courier New', Courier, monospace"
     effect.domElement.style.margin = '0'
     effect.domElement.style.padding = '0'
     effect.domElement.style.lineHeight = '1'
