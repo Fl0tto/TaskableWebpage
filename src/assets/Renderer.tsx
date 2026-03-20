@@ -127,7 +127,7 @@ const Rocket = ({ position }: { position: [number, number, number] }) => {
   )
 }
 
-// ─── ASCII Renderer ───────────────────────────────────────────────────────────
+// ─── ASCII Renderer ───────────────────────────────────────────────────────────  .,:;oO08@
 function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) {
   const { size, gl, scene, camera } = useThree()
   const isReady = useRef(false)
@@ -191,7 +191,7 @@ const Renderer = () => {
   
   return (
     <Canvas camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}>
-      <AsciiRenderer />
+      <AsciiRenderer characters={isMobile ? ' .,:;ox%#@' : ' ●◉◍◎○◌◦·'}/>
       <directionalLight position={[-20, 4, 10]} />
       <ambientLight intensity={0.1} />
       <Rocket position={[0, 0, 0]} />
