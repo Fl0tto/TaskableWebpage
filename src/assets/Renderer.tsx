@@ -191,7 +191,7 @@ const Renderer = () => {
   
   return (
     <Canvas camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}>
-      <AsciiRenderer characters={isMobile ? ' .,:;ox%#@' : ' ●◉◍◎○◌◦·'}/>
+      <AsciiRenderer characters={isMobile ? ' .~*O' : ' ●◉◍◎○◌◦·'}/>
       <directionalLight position={[-20, 4, 10]} />
       <ambientLight intensity={0.1} />
       <Rocket position={[0, 0, 0]} />
