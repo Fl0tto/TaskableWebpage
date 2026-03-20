@@ -8,6 +8,23 @@ import FluidSim from './FluidSim';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Tell ScrollTrigger to ignore mobile layout shifts when the address bar shows/hides
+ScrollTrigger.config({ ignoreMobileResize: true });
+
+// Helper to get the Small Viewport Height (safe area) in pixels.
+// This ensures the navbar never starts hidden if the page is loaded/refreshed mid-scroll.
+const getSVH = () => {
+  if (typeof window === 'undefined') return 0;
+  const div = document.createElement('div');
+  div.style.height = '100svh';
+  div.style.position = 'absolute';
+  div.style.top = '-9999px';
+  document.body.appendChild(div);
+  const height = div.clientHeight || window.innerHeight; // Fallback to innerHeight if svh isn't supported
+  document.body.removeChild(div);
+  return height;
+};
+
 const Navbar = () => {
   const navRef = useRef<HTMLDivElement>(null);
   const [fluidVisible, setFluidVisible] = useState(false)
@@ -58,7 +75,7 @@ const Navbar = () => {
       if (isMobile && nav) {
         // Start at the bottom, then scrub back to the top synchronously with the Renderer exit
         gsap.fromTo(nav,
-          { y: () => window.innerHeight - nav.offsetHeight - 48 }, // 24px mirrored top & bottom
+          { y: () => getSVH() - nav.offsetHeight - 48 }, // Use actual svh pixels for a flawless start position
           {
             y: 0,
             ease: 'none',
