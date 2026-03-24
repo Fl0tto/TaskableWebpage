@@ -123,16 +123,19 @@ const HorizontalScroll = () => {
   ];
 
   return (
-    <Box
-      ref={containerRef}
-      sx={{
-        height: '100vh',
-        width: '100vw',
-        position: 'relative',
-        backgroundColor: '#1C2B35',
-        overflow: 'hidden',
-      }}
-    >
+    <Box id="features" sx={{ position: 'relative' }}>
+      {/* This anchor perfectly aligns with the exact scroll position where the 3rd card becomes fully deployed */}
+      <Box id="get-started" sx={{ position: 'absolute', top: '90vh', left: 0, pointerEvents: 'none' }} />
+      <Box
+        ref={containerRef}
+        sx={{
+          height: '100vh',
+          width: '100vw',
+          position: 'relative',
+          backgroundColor: '#1C2B35',
+          overflow: 'hidden',
+        }}
+      >
         {cardsData.map((card, index) => (
           <Box
             key={card.id}
@@ -248,6 +251,7 @@ const HorizontalScroll = () => {
             )}
           </Box>
         ))}
+      </Box>
     </Box>
   );
 };

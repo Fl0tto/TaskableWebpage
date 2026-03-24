@@ -25,6 +25,15 @@ const getSVH = () => {
   return height;
 };
 
+const scrollToSection = (id: string) => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  } else if (id === 'top') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
 const Navbar = () => {
   const navRef = useRef<HTMLDivElement>(null);
   const [fluidVisible, setFluidVisible] = useState(false)
@@ -139,14 +148,14 @@ const Navbar = () => {
             backgroundColor: 'transparent',
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em', zIndex: 2 }}>
+          <Typography variant="h5" onClick={() => scrollToSection('top')} sx={{ fontWeight: 800, letterSpacing: '-0.02em', zIndex: 2, cursor: 'pointer' }}>
             Taskable.
           </Typography>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center', zIndex: 2 }}>
-            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>Features</Typography>
-            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>Get Started</Typography>
-            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>About</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('features')}>Features</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('get-started')}>Get Started</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('about')}>About</Typography>
           </Box>
 
           <IconButton sx={{ display: { xs: 'flex', md: 'none' }, color: 'inherit', zIndex: 2 }}>
