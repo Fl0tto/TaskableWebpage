@@ -107,12 +107,36 @@ const StarParticles = () => {
 const Rocket = ({ position }: { position: [number, number, number] }) => {
   const reference = useRef<Mesh>(null!)
   const { mouse } = useThree()
+  const previousMouse = useRef({ x: 0, y: 0 })
+  const extraSpeed = useRef(0)
+  const isFirstFrame = useRef(true)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (reference.current && !isMobile) {
-      reference.current.rotation.y = Math.PI * - mouse.x + mouse.y * 1.66
+      if (isFirstFrame.current) {
+        previousMouse.current = { x: mouse.x, y: mouse.y }
+        isFirstFrame.current = false
+      }
+
+      const dx = mouse.x - previousMouse.current.x
+      const dy = mouse.y - previousMouse.current.y
+      const movement = Math.sqrt(dx * dx + dy * dy)
+
+      // Prevent huge jumps from initial mouse detection or window re-entry
+      if (movement < 0.5) {
+        extraSpeed.current += movement * 33
+      }
+
+      // Smoothly decay the extra speed back to 0 over time
+      extraSpeed.current = THREE.MathUtils.damp(extraSpeed.current, 0, 4, delta)
+
+      // Apply base clockwise rotation of ~0.33 rad/s plus any extra speed from mouse movement
+      reference.current.rotation.y -= (0.33 + extraSpeed.current) * delta
+
+      // Store current mouse position for the next frame
+      previousMouse.current = { x: mouse.x, y: mouse.y }
     }
   })
 
@@ -188,9 +212,30 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
 const Renderer = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [frameloop, setFrameloop] = useState<'always' | 'never'>('always')
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect()
+    }
+  }, [])
   
   return (
-    <Canvas camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}>
+    <Canvas 
+      frameloop={frameloop}
+      camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}
+      onCreated={({ gl }) => {
+        if (typeof IntersectionObserver !== 'undefined') {
+          if (observerRef.current) observerRef.current.disconnect()
+          observerRef.current = new IntersectionObserver(
+            ([entry]) => setFrameloop(entry.isIntersecting ? 'always' : 'never'),
+            { threshold: 0 } // Triggers the exact moment it fully exits or partially enters
+          )
+          observerRef.current.observe(gl.domElement)
+        }
+      }}
+    >
       <AsciiRenderer characters={isMobile ? ' .~*O' : ' ●◉◍◎○◌◦·'}/>
       <directionalLight position={[-20, 4, 10]} />
       <ambientLight intensity={0.1} />

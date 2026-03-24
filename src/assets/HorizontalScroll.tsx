@@ -47,9 +47,19 @@ const HorizontalScroll = () => {
 
       // Animate Green Layer
       tl.to(cards[1], {
-        x: '-2vw',
+        x: '0vw',
         ease: 'none',
         duration: 1,
+        onUpdate: function(this: gsap.core.Tween) {
+          const vid = cards[0].querySelector('video') as HTMLVideoElement | null;
+          if (vid) {
+            if (this.progress() === 1) {
+              if (!vid.paused) vid.pause();
+            } else {
+              if (vid.paused) vid.play().catch(() => {});
+            }
+          }
+        }
       })
       .from(cards[1].querySelector('.animated-text'), { 
         y: 50, 
@@ -61,17 +71,26 @@ const HorizontalScroll = () => {
 
       // Animate Blue Layer
       tl.to(cards[2], {
-        x: '0vw',
+        y: '0vh', // Slide in from the bottom
         ease: 'none',
         duration: 1,
+        onUpdate: function(this: gsap.core.Tween) {
+          const vid = cards[1].querySelector('video') as HTMLVideoElement | null;
+          if (vid) {
+            if (this.progress() === 1) {
+              if (!vid.paused) vid.pause();
+            } else {
+              if (vid.paused) vid.play().catch(() => {});
+            }
+          }
+        }
       })
-      .from(cards[2].querySelector('.animated-text'), { 
-        y: 50, 
-        opacity: 0, 
-        duration: 0.4, 
-        ease: 'power2.out',
-        onStart: () => setActiveCards(prev => Array.from(new Set([...prev, 2])))
-      }, "-=0.4");
+      .to(cards[2], {
+        borderTopLeftRadius: '0px',
+        borderTopRightRadius: '0px',
+        duration: 0.2,
+        ease: 'power1.inOut',
+      });
     }
   }, { scope: containerRef });
 
@@ -79,29 +98,27 @@ const HorizontalScroll = () => {
     { 
       id: 1, 
       color: '#ffffff', 
-      textColor: '#1C2B35',
+      textColor: '#F9F6EE',
       videoSrc: '/videos/bg-1.mp4', // Example path, place your video in the public/videos folder
-      title: 'AI Driven Time Recording', 
-      text: 'Have you already accepted having to remind your project of recording their times as unavoidable overhead? Taskable aims to trivialize time recordings unburdening your employees to reclaim their time focusing on the work that actually matters!',
-      cta: 'Learn more'
+      titleLine1: 'AI Driven', 
+      titleLine2: 'Time Recording',
+      text: 'Have you already accepted having to remind your team of recording their times as unavoidable overhead? Taskable aims to trivialize time recordings unburdening your employees to reclaim their time focusing on the work that actually matters!',
     },
     { 
       id: 2, 
       color: '#ffffff', 
-      textColor: '#1C2B35',
+      textColor: '#131007',
       videoSrc: '/videos/bg-2.mp4',
-      title: 'Project setup at the speed of thought.', 
+      titleLine1: 'Project setup at', 
+      titleLine2: 'the speed of thought.',
       text: 'Assist project managers by instantly generating structures, resource allocations, and timelines based on historical project data. Iterate on the fly, adjust parameters instantly, and get your teams executing now!',
-      cta: 'See AI-assisted workflows in action →'
     },
     { 
       id: 3, 
-      color: '#ffffff', 
-      textColor: '#1C2B35',
-      videoSrc: '/videos/bg-3.mp4',
-      title: 'Deep, native ERP integration. No IT headaches.', 
-      text: 'Enterprise software should break down data silos, not create them. Whether you prefer our fully managed integrations that autonomously pull and push data to your ERP, or a modern webhook/event-based architecture running through your own middleware (AWS, SAP BTP), we fit your stack. Expect flawless, out-of-the-box synchronization with SAP Cloud ERP, Workday, and Microsoft Dynamics.',
-      cta: 'Read the integration documentation →'
+      color: '#1C2B35', // Solid Background Color
+      isFullScreen: true, 
+      // You can define a custom React Component here that you want rendered as the full-screen content:
+      // CustomComponent: MyCustomReactComponent 
     },
   ];
 
@@ -111,54 +128,54 @@ const HorizontalScroll = () => {
       sx={{
         height: '100vh',
         width: '100vw',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
         position: 'relative',
         backgroundColor: '#1C2B35',
+        overflow: 'hidden',
       }}
     >
-      <Box
-        sx={{
-          height: '92.5vh',
-          width: '100vw',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
         {cardsData.map((card, index) => (
           <Box
             key={card.id}
             className="stacked-card"
             sx={{
               position: 'absolute',
-              top: 0,
+              bottom: 0,
               left: 0,
-              width: index === 0 ? '100vw' : '110vw', // Extra width to prevent right-edge gaps when translated to negative x values
-              height: '100%',
+              width: index === 1 ? '110vw' : '100vw',
+              height:'100vh',
               zIndex: index,
-              transform: index === 0 ? 'translateX(0)' : 'translateX(100vw)',
-              // Drop shadow applied to parent traces the child's clipped shape
-              filter: index === 0 ? 'none' : 'drop-shadow(-12px 0px 24px rgba(0, 0, 0, 0.35))',
+              transform: index === 0 
+                ? 'translate(0, 0)' 
+                : index === 1 
+                  ? 'translate(100vw, 0)' 
+                  : 'translate(0, 100vh)',
+              filter: index === 1 ? 'drop-shadow(-12px 0px 24px rgba(0, 0, 0, 0.35))' : index === 2 ? 'drop-shadow(0px -12px 24px rgba(0, 0, 0, 0.35))' : 'none',
+              borderRadius: index === 2 ? '54px 54px 0 0' : '0',
+              overflow: 'hidden',
             }}
           >
-            <Box
+            {card.isFullScreen ? (
+              <Box sx={{ width: '100%', height: '100%', backgroundColor: card.color }}>
+                {/* Option to render a custom React Component as full-screen content */}
+              </Box>
+            ) : (
+              <Box
               sx={{
                 width: '100%',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-start',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
                 position: 'relative',
                 zIndex: 0,
-                backgroundColor: card.color, 
-                // Apply a ~7 degree skew (tan(7°) ≈ 0.122 -> 11vh / 90vh ≈ 0.122)
-                clipPath: index === 0 ? 'none' : 'polygon(11vh 0, 100% 0, 100% 100%, 0 100%)',
+                  backgroundColor: card.color,
+                  clipPath: index === 1 ? 'polygon(11vh 0, 100% 0, 100% 100%, 0 100%)' : 'none',
               }}
             >
               {card.videoSrc && (
                 <video
+                  ref={(el) => { if (el) el.playbackRate = 0.8; }}
                   autoPlay
                   loop
                   muted
@@ -200,56 +217,37 @@ const HorizontalScroll = () => {
               <Box 
                 className="animated-text" 
                 sx={{ 
+                  mt: { xs: '25vh', md: '30vh' },
                   textAlign: 'left', 
-                  color: card.textColor, 
-                  // Dynamically pad the left side to safely clear the 11vh diagonal clip path across all screen sizes
-                  pl: index > 0 ? { xs: 'calc(11vh + 32px)', md: 'calc(11vh + 80px)' } : { xs: 4, md: 10 },
-                  pr: { xs: 4, md: 10 },
+                  pl: { xs: 'calc(11vh + 32px)', md: 'calc(11vh + 80px)' }, // Unified padding aligns headers perfectly relative to screen
+                  pr: index === 1 ? { xs: 'calc(10vw + 32px)', md: 'calc(10vw + 80px)' } : { xs: 4, md: 10 },
                   maxWidth: '1200px' 
                 }}
               >
                 <ScrambleText 
                   variant="h2" 
                   trigger={activeCards.includes(index)}
-                  text={card.title}
-                  sx={{ fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, mb: 4, lineHeight: 1.1, letterSpacing: '-0.02em' }}
+                  text={card.titleLine1 || ''}
+                  sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, lineHeight: 1.1, letterSpacing: '-0.02em' }}
                 />
-                <Box sx={{ ml: { xs: 2, md: 8 }, maxWidth: '800px' }}>
-                  <Typography variant="body1" sx={{ opacity: 0.9, fontSize: { xs: '16px', md: '20px' }, mb: 4, lineHeight: 1.6 }}>{card.text}</Typography>
-                  <Box
-                    component="button"
-                    sx={{
-                      position: 'relative',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      px: { xs: 3, md: 4 },
-                      py: { xs: 1.5, md: 2 },
-                      borderRadius: '50px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.166)',
-                      backdropFilter: 'blur(4px)',
-                      border: '1px solid rgba(91, 191, 181, 0.2)',
-                      color: card.textColor,
-                      fontFamily: 'inherit',
-                      fontSize: { xs: '16px', md: '18px' },
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      outline: 'none',
-                      transition: 'all 0.8s cubic-bezier(0.25, 1, 0.5, 1)', // Maps to 0.8s power2.out
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.25)',
-                        border: '1px solid rgba(91, 191, 181, 0.4)',
-                      }
-                    }}
-                  >
-                    {card.cta}
-                  </Box>
+                <ScrambleText 
+                  variant="h2" 
+                  trigger={activeCards.includes(index)}
+                  text={card.titleLine2 || ''}
+                  sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, mb: 4, lineHeight: 1.1, letterSpacing: '-0.02em' }}
+                />
+                <Box sx={{ position: 'relative', mt: { xs: 3, md: 4 }, maxWidth: '800px' }}>
+                  {/* Vertical Line extending +1rem top and bottom */}
+                  <Box sx={{ position: 'absolute', top: '-1rem', bottom: '-1rem', left: 0, width: '2px', backgroundColor: card.textColor, opacity: 0.56 }} />
+                  <Typography variant="body1" sx={{ color: card.textColor, opacity: 0.56, pl: { xs: 3, md: 4 }, fontSize: { xs: '16px', md: '20px' }, lineHeight: 1.6 }}>
+                    {card.text}
+                  </Typography>
                 </Box>
               </Box>
             </Box>
+            )}
           </Box>
         ))}
-      </Box>
     </Box>
   );
 };

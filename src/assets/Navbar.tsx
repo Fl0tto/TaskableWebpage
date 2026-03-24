@@ -145,8 +145,8 @@ const Navbar = () => {
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center', zIndex: 2 }}>
             <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>Features</Typography>
-            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>Philosophy</Typography>
-            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>Protocol</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>Get Started</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }}>About</Typography>
           </Box>
 
           <IconButton sx={{ display: { xs: 'flex', md: 'none' }, color: 'inherit', zIndex: 2 }}>
