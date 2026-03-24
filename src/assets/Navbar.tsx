@@ -57,7 +57,7 @@ const Navbar = () => {
             duration: 0.8,
             ease: 'power2.out'
           })
-          gsap.to(nav, { color: '#1A1A1A', duration: 0.4, ease: 'power2.out' })
+          gsap.to(nav, { color: '#1C2B35', duration: 0.4, ease: 'power2.out' })
         },
         onLeaveBack: () => {
           setFluidVisible(false)
