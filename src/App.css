@@ -1,5 +1,10 @@
 :root {
-  --main-bg-color: #1C2B35;
+  --off-black: #131007;
+  --off-white: #F9F6EE;
+  --main-bg: #1C2B35;
+  --main-accent: #C8922A;
+  --sec-accent: #DDAE51;
+  --tert-accent: #FFD686;
 }
 
 * {
@@ -11,13 +16,13 @@
 html, body, #root {
   width: 100%;
   height: 100%;
-  background-color: var(--main-bg-color);
+  background-color: var(--main-bg);
 }
 
 html {
   width: 100%;
   height: 100%;
-  background-color: var(--main-bg-color);
+  background-color: var(--main-bg);
   overflow: -moz-scrollbars-none;
   -ms-overflow-style: none;
   scrollbar-width: none;  /* Firefox */

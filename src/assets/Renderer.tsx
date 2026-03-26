@@ -2,10 +2,10 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { AsciiEffect } from 'three-stdlib'
 import { useRef, useEffect, useMemo, useState } from "react"
 import { Model as WebsiteRocket } from "./WebsiteRocket"
-import { Model as RocketThrust } from "./RocketThrust"
 import { Mesh, Vector3, CatmullRomCurve3} from "three"
-import { useMediaQuery, useTheme } from "@mui/material"
+import { useMediaQuery, useTheme, Box, Typography } from "@mui/material"
 import * as THREE from "three"
+import { COLORS } from '../colors'
 
 const ROCKET_POS = new Vector3(0, 0, 0)
 
@@ -98,13 +98,128 @@ const StarParticles = () => {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={0.15} color="#C8922A" transparent opacity={0.8} sizeAttenuation />
+      <pointsMaterial size={0.15} color={COLORS.mainAccent} transparent opacity={0.8} sizeAttenuation />
     </points>
   )
 }
 
+// ─── Rocket Exhaust Particles ──────────────────────────────────────────────────
+const RocketExhaust = ({ position }: { position: [number, number, number] }) => {
+  const count = 200;
+  const meshRef = useRef<THREE.Points>(null!);
+  
+  const [positions, velocities, ages, sizes] = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const velocities = new Float32Array(count * 3);
+    const ages = new Float32Array(count);
+    const sizes = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3 + 0] = (Math.random() - 0.5) * 0.2;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 0.2;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
+      
+      velocities[i * 3 + 0] = (Math.random() - 0.5) * 1.5;
+      // Faster falling downwards to match "star" movement and create a thick trail
+      velocities[i * 3 + 1] = -Math.random() * 8.0 - 6.0; 
+      velocities[i * 3 + 2] = (Math.random() - 0.5) * 1.5;
+      
+      ages[i] = - (i / count); // stagger emission
+      sizes[i] = Math.random() * 50.0 + 30.0; 
+    }
+
+    return [positions, velocities, ages, sizes];
+  }, [count]);
+
+  const ParticleShaderMaterial = useMemo(() => new THREE.ShaderMaterial({
+    uniforms: {
+      color: { value: new THREE.Color(COLORS.mainAccent) },
+    },
+    vertexShader: `
+      attribute float age;
+      attribute float particleSize;
+      varying float vAge;
+      void main() {
+        vAge = age;
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        // Particles grow significantly more as they age to simulate expanding smoke
+        gl_PointSize = particleSize * (10.0 / -mvPosition.z) * (1.0 + max(0.0, age) * 2.5);
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 color;
+      varying float vAge;
+      void main() {
+        if (vAge < 0.0) discard;
+        
+        float alpha = max(0.0, 1.0 - vAge);
+        
+        // Soft circular particle
+        vec2 circCoord = 2.0 * gl_PointCoord - 1.0;
+        float distSq = dot(circCoord, circCoord);
+        if (distSq > 1.0) discard;
+        
+        alpha *= (1.0 - distSq);
+        gl_FragColor = vec4(color, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  }), []);
+
+  useFrame((_, delta) => {
+    if (!meshRef.current) return;
+    
+    const pos = meshRef.current.geometry.attributes.position.array as Float32Array;
+    const ageArr = meshRef.current.geometry.attributes.age.array as Float32Array;
+    const vel = velocities;
+
+    for (let i = 0; i < count; i++) {
+      // Slow down the age increment so particles travel further down
+      ageArr[i] += delta * 0.8; 
+      
+      if (ageArr[i] >= 1.0) {
+        ageArr[i] = 0.0;
+        pos[i * 3 + 0] = (Math.random() - 0.5) * 0.2;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * 0.2;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
+        
+        vel[i * 3 + 0] = (Math.random() - 0.5) * 1.5;
+        vel[i * 3 + 1] = -Math.random() * 8.0 - 6.0; 
+        vel[i * 3 + 2] = (Math.random() - 0.5) * 1.5;
+      } else if (ageArr[i] > 0.0) {
+        pos[i * 3 + 0] += vel[i * 3 + 0] * delta;
+        pos[i * 3 + 1] += vel[i * 3 + 1] * delta;
+        pos[i * 3 + 2] += vel[i * 3 + 2] * delta;
+        
+       // Add more spread/turbulence outward as they fall
+        vel[i * 3 + 0] += (Math.random() - 0.5) * delta * 4.0;
+        vel[i * 3 + 2] += (Math.random() - 0.5) * delta * 4.0;
+      }
+    }
+
+    meshRef.current.geometry.attributes.position.needsUpdate = true;
+    meshRef.current.geometry.attributes.age.needsUpdate = true;
+  });
+
+  return (
+    <group position={position} rotation={[0, 0, -0.428]} scale={0.365}>
+      <points ref={meshRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+          <bufferAttribute attach="attributes-age" args={[ages, 1]} />
+          <bufferAttribute attach="attributes-particleSize" args={[sizes, 1]} />
+        </bufferGeometry>
+        <primitive attach="material" object={ParticleShaderMaterial} />
+      </points>
+    </group>
+  );
+};
+
 // ─── Rocket ───────────────────────────────────────────────────────────────────
-const Rocket = ({ position }: { position: [number, number, number] }) => {
+const Rocket = ({ position, rocketExhaustKey }: { position: [number, number, number], rocketExhaustKey: number }) => {
   const reference = useRef<Mesh>(null!)
   const { mouse } = useThree()
   const previousMouse = useRef({ x: 0, y: 0 })
@@ -146,7 +261,7 @@ const Rocket = ({ position }: { position: [number, number, number] }) => {
         <WebsiteRocket ref={reference} />
         <StarParticles />
       </group>
-      {!isMobile && <RocketThrust position={position} />}
+      {!isMobile && <RocketExhaust position={position} key={rocketExhaustKey} />}
     </>
   )
 }
@@ -180,8 +295,8 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
     effect.domElement.style.margin = '0'
     effect.domElement.style.padding = '0'
     effect.domElement.style.lineHeight = '1'
-    effect.domElement.style.color = '#C8922A'
-    effect.domElement.style.backgroundColor = '#1C2B35'
+    effect.domElement.style.color = COLORS.mainAccent
+    effect.domElement.style.backgroundColor = COLORS.mainBg
     effect.domElement.style.pointerEvents = 'none'
     return effect
   }, [characters, options.invert, gl])
@@ -213,6 +328,7 @@ const Renderer = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [frameloop, setFrameloop] = useState<'always' | 'never'>('always')
+  const [rocketExhaustKey, setRocketExhaustKey] = useState(0)
   const observerRef = useRef<IntersectionObserver | null>(null)
 
   useEffect(() => {
@@ -222,26 +338,54 @@ const Renderer = () => {
   }, [])
   
   return (
-    <Canvas 
-      frameloop={frameloop}
-      camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}
-      onCreated={({ gl }) => {
-        if (typeof IntersectionObserver !== 'undefined') {
-          if (observerRef.current) observerRef.current.disconnect()
-          observerRef.current = new IntersectionObserver(
-            ([entry]) => setFrameloop(entry.isIntersecting ? 'always' : 'never'),
-            { threshold: 0 } // Triggers the exact moment it fully exits or partially enters
-          )
-          observerRef.current.observe(gl.domElement)
-        }
-      }}
-    >
-      <AsciiRenderer characters={isMobile ? ' .~*O' : ' ●◉◍◎○◌◦·'}/>
-      <directionalLight position={[-20, 4, 10]} />
-      <ambientLight intensity={0.1} />
-      <Rocket position={[0, 0, 0]} />
-      <CameraRig />
-    </Canvas>
+    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Canvas 
+        frameloop={frameloop}
+        camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}
+        onCreated={({ gl }) => {
+          if (typeof IntersectionObserver !== 'undefined') {
+            if (observerRef.current) observerRef.current.disconnect()
+            observerRef.current = new IntersectionObserver(
+              ([entry]) => {
+                setFrameloop(entry.isIntersecting ? 'always' : 'never')
+                if (entry.isIntersecting) {
+                  setRocketExhaustKey(prev => prev + 1)
+                }
+              },
+              { threshold: 0 } // Triggers the exact moment it fully exits or partially enters
+            )
+            observerRef.current.observe(gl.domElement)
+          }
+        }}
+      >
+        <AsciiRenderer characters={isMobile ? ' .~*O' : ' ●◉◍◎○◌◦·'}/>
+        <directionalLight position={[-20, 4, 10]} />
+        <ambientLight intensity={0.1} />
+        <Rocket position={[0, 0, 0]} rocketExhaustKey={rocketExhaustKey} />
+        <CameraRig />
+      </Canvas>
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        right: { xs: '5%', md: '10%' },
+        transform: 'translateY(-50%)',
+        pointerEvents: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        zIndex: 10
+      }}>
+        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: 'right', lineHeight: 1.1, fontSize: { xs: '3rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
+          Reclaim
+        </Typography>
+        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: 'right', lineHeight: 1.1, fontSize: { xs: '3rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
+          your
+        </Typography>
+        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: 'right', lineHeight: 1.1, fontSize: { xs: '3rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
+          Time
+        </Typography>
+      </Box>
+    </Box>
   )
 }
 

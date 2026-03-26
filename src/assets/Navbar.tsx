@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import FluidSim from './FluidSim';
+import { COLORS } from '../colors';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,7 +67,7 @@ const Navbar = () => {
             duration: 0.8,
             ease: 'power2.out'
           })
-          gsap.to(nav, { color: '#1C2B35', duration: 0.4, ease: 'power2.out' })
+          gsap.to(nav, { color: COLORS.mainBg, duration: 0.4, ease: 'power2.out' })
         },
         onLeaveBack: () => {
           setFluidVisible(false)
@@ -77,7 +78,7 @@ const Navbar = () => {
             duration: 0.8,
             ease: 'power2.out'
           })
-          gsap.to(nav, { color: '#C8922A', duration: 0.4, ease: 'power2.out' })
+          gsap.to(nav, { color: COLORS.mainAccent, duration: 0.4, ease: 'power2.out' })
         }
       })
 
@@ -144,7 +145,7 @@ const Navbar = () => {
             py: 2,
             px: 4,
             borderRadius: '50px',
-            color: '#C8922A',
+            color: COLORS.mainAccent,
             backgroundColor: 'transparent',
           }}
         >

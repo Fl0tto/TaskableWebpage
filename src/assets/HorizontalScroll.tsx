@@ -4,6 +4,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ScrambleText from './ScrambleText';
+import { COLORS } from '../colors';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -98,7 +99,7 @@ const HorizontalScroll = () => {
     { 
       id: 1, 
       color: '#ffffff', 
-      textColor: '#F9F6EE',
+      textColor: COLORS.offWhite,
       videoSrc: '/videos/bg-1.mp4', // Example path, place your video in the public/videos folder
       titleLine1: 'AI Driven', 
       titleLine2: 'Time Recording',
@@ -107,7 +108,7 @@ const HorizontalScroll = () => {
     { 
       id: 2, 
       color: '#ffffff', 
-      textColor: '#131007',
+      textColor: COLORS.offBlack,
       videoSrc: '/videos/bg-2.mp4',
       titleLine1: 'Project setup at', 
       titleLine2: 'the speed of thought.',
@@ -115,7 +116,7 @@ const HorizontalScroll = () => {
     },
     { 
       id: 3, 
-      color: '#1C2B35', // Solid Background Color
+      color: COLORS.mainBg, // Solid Background Color
       isFullScreen: true, 
       // You can define a custom React Component here that you want rendered as the full-screen content:
       // CustomComponent: MyCustomReactComponent 
@@ -132,7 +133,7 @@ const HorizontalScroll = () => {
           height: '100vh',
           width: '100vw',
           position: 'relative',
-          backgroundColor: '#1C2B35',
+          backgroundColor: COLORS.mainBg,
           overflow: 'hidden',
         }}
       >
