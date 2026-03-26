@@ -104,7 +104,7 @@ const StarParticles = () => {
 }
 
 // ─── Rocket Exhaust Particles ──────────────────────────────────────────────────
-const RocketExhaust = ({ position }: { position: [number, number, number] }) => {
+const RocketExhaust = ({ position, isMobile }: { position: [number, number, number], isMobile: boolean }) => {
   const count = 200;
   const meshRef = useRef<THREE.Points>(null!);
   
@@ -205,7 +205,7 @@ const RocketExhaust = ({ position }: { position: [number, number, number] }) => 
   });
 
   return (
-    <group position={position} rotation={[0, 0, -0.428]} scale={0.365}>
+    <group position={position} rotation={isMobile ? [0, 0, 0] : [0, 0, -0.428]} scale={0.365}>
       <points ref={meshRef}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[positions, 3]} />
@@ -261,7 +261,7 @@ const Rocket = ({ position, rocketExhaustKey }: { position: [number, number, num
         <WebsiteRocket ref={reference} />
         <StarParticles />
       </group>
-      {!isMobile && <RocketExhaust position={position} key={rocketExhaustKey} />}
+      <RocketExhaust position={position} key={rocketExhaustKey} isMobile={isMobile} />
     </>
   )
 }
@@ -366,22 +366,27 @@ const Renderer = () => {
       </Canvas>
       <Box sx={{
         position: 'absolute',
-        top: '50%',
-        right: { xs: '5%', md: '10%' },
-        transform: 'translateY(-50%)',
+        top: { xs: '50%', md: '50%' },
+        left: { xs: '50%', md: 'auto' },
+        right: { xs: 'auto', md: '10%' },
+        transform: { xs: 'translate(-50%, -50%)', md: 'translateY(-50%)' },
         pointerEvents: 'none',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-end',
-        zIndex: 10
+        alignItems: { xs: 'center', md: 'flex-end' },
+        zIndex: 10,
+        // Mobile-only enhancements
+        opacity: { xs: 0.7, md: 1 },
+        backgroundColor: 'transparent',
+        borderRadius: { xs: '12px', md: 0 },
       }}>
-        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: 'right', lineHeight: 1.1, fontSize: { xs: '3rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
+        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: { xs: 'center', md: 'right' }, lineHeight: 1.1, fontSize: { xs: '4.5rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
           Reclaim
         </Typography>
-        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: 'right', lineHeight: 1.1, fontSize: { xs: '3rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
+        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: { xs: 'center', md: 'right' }, lineHeight: 1.1, fontSize: { xs: '4.5rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
           your
         </Typography>
-        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: 'right', lineHeight: 1.1, fontSize: { xs: '3rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
+        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: { xs: 'center', md: 'right' }, lineHeight: 1.1, fontSize: { xs: '4.5rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
           Time
         </Typography>
       </Box>

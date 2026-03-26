@@ -97,16 +97,24 @@ const HorizontalScroll = () => {
       // Video 3 Scrubbing Linked to Scroll
       const vid3 = cards[2].querySelector('video') as HTMLVideoElement | null;
       if (vid3) {
+        // This function sets the video's time to its very end.
+        const setVideoToEnd = () => {
+          if (vid3.duration) vid3.currentTime = vid3.duration;
+        };
+
+        // Set the video to its end frame once metadata is loaded to prevent a visual jump
+        // from the first frame to the last when the scroll-based scrubbing begins.
+        vid3.addEventListener('loadedmetadata', setVideoToEnd, { once: true });
+        if (vid3.readyState >= 1) setVideoToEnd(); // Manually trigger if already loaded.
+
         const proxy = { progress: 0 };
         tl.to(proxy, {
           progress: 1,
           duration: 1.83, // 0.33 (remaining 1/3 of the slide) + 1.5 (extra 150vh equivalent)
           ease: 'none',
           onUpdate: () => {
-            // readyState >= 3 (HAVE_FUTURE_DATA) ensures the video can be scrubbed smoothly
-            if (vid3.duration) { // Ensures metadata is loaded before applying time
-              vid3.currentTime = proxy.progress * vid3.duration;
-            }
+            // By subtracting the progress from 1, we play the video in reverse
+            if (vid3.duration) vid3.currentTime = (1 - proxy.progress) * vid3.duration;
           }
         }, "1.66"); // Start exactly when card 3 slide is 2/3 complete (1 + 0.66)
       }
@@ -180,22 +188,24 @@ const HorizontalScroll = () => {
             {card.isFullScreen ? (
               <Box sx={{ width: '100%', height: '100%', backgroundColor: card.color, position: 'relative' }}>
                 {card.videoSrc && (
-                  <video
+                  <Box
+                    component="video"
                     muted
                     playsInline
                     preload="auto"
-                    style={{
+                    sx={{
                       position: 'absolute',
                       top: 0,
                       left: 0,
                       width: '100%',
                       height: '100%',
-                    objectFit: 'cover',
+                      objectFit: 'cover',
+                      objectPosition: { xs: '0% 50%', md: '50% 50%' }, // Align left on mobile, center on desktop
                       zIndex: 0,
                     }}
                   >
                     <source src={card.videoSrc} type="video/mp4" />
-                  </video>
+                  </Box>
                 )}
                 {/* Option to render a custom React Component as full-screen content*/ }
                   
