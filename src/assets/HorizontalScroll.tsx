@@ -3,8 +3,9 @@ import { Box, Typography } from '@mui/material';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import ScrambleText from './ScrambleText';
+
 import { COLORS } from '../colors';
+//import PricingCard from './reuse/PricingCard';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,7 +43,7 @@ const HorizontalScroll = () => {
           pin: true,
           scrub: 1,
           start: 'center center',
-          end: '+=90%', // 200% of viewport height scrolling duration
+        end: '+=350%', // Extended scroll duration to accommodate the extra 150vh virtual scroll
         },
       });
 
@@ -85,13 +86,30 @@ const HorizontalScroll = () => {
             }
           }
         }
-      })
+      }, "1") // Absolute marker at 1 second
       .to(cards[2], {
         borderTopLeftRadius: '0px',
         borderTopRightRadius: '0px',
         duration: 0.2,
         ease: 'power1.inOut',
-      });
+      }, "2"); // Absolute marker at 2 seconds
+
+      // Video 3 Scrubbing Linked to Scroll
+      const vid3 = cards[2].querySelector('video') as HTMLVideoElement | null;
+      if (vid3) {
+        const proxy = { progress: 0 };
+        tl.to(proxy, {
+          progress: 1,
+          duration: 1.83, // 0.33 (remaining 1/3 of the slide) + 1.5 (extra 150vh equivalent)
+          ease: 'none',
+          onUpdate: () => {
+            // readyState >= 3 (HAVE_FUTURE_DATA) ensures the video can be scrubbed smoothly
+            if (vid3.duration) { // Ensures metadata is loaded before applying time
+              vid3.currentTime = proxy.progress * vid3.duration;
+            }
+          }
+        }, "1.66"); // Start exactly when card 3 slide is 2/3 complete (1 + 0.66)
+      }
     }
   }, { scope: containerRef });
 
@@ -117,7 +135,8 @@ const HorizontalScroll = () => {
     { 
       id: 3, 
       color: COLORS.mainBg, // Solid Background Color
-      isFullScreen: true, 
+      isFullScreen: true,
+      videoSrc: '/videos/bg-3.mp4',
       // You can define a custom React Component here that you want rendered as the full-screen content:
       // CustomComponent: MyCustomReactComponent 
     },
@@ -159,8 +178,27 @@ const HorizontalScroll = () => {
             }}
           >
             {card.isFullScreen ? (
-              <Box sx={{ width: '100%', height: '100%', backgroundColor: card.color }}>
-                {/* Option to render a custom React Component as full-screen content */}
+              <Box sx={{ width: '100%', height: '100%', backgroundColor: card.color, position: 'relative' }}>
+                {card.videoSrc && (
+                  <video
+                    muted
+                    playsInline
+                    preload="auto"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                    objectFit: 'cover',
+                      zIndex: 0,
+                    }}
+                  >
+                    <source src={card.videoSrc} type="video/mp4" />
+                  </video>
+                )}
+                {/* Option to render a custom React Component as full-screen content*/ }
+                  
               </Box>
             ) : (
               <Box
@@ -228,18 +266,18 @@ const HorizontalScroll = () => {
                   maxWidth: '1200px' 
                 }}
               >
-                <ScrambleText 
+                <Typography 
                   variant="h2" 
-                  trigger={activeCards.includes(index)}
-                  text={card.titleLine1 || ''}
                   sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, lineHeight: 1.1, letterSpacing: '-0.02em' }}
-                />
-                <ScrambleText 
+                >
+                  {card.titleLine1 || ''}
+                </Typography>
+                <Typography 
                   variant="h2" 
-                  trigger={activeCards.includes(index)}
-                  text={card.titleLine2 || ''}
                   sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, mb: 4, lineHeight: 1.1, letterSpacing: '-0.02em' }}
-                />
+                >
+                  {card.titleLine2 || ''}
+                </Typography>
                 <Box sx={{ position: 'relative', mt: { xs: 3, md: 4 }, maxWidth: '800px' }}>
                   {/* Vertical Line extending +1rem top and bottom */}
                   <Box sx={{ position: 'absolute', top: '-1rem', bottom: '-1rem', left: 0, width: '2px', backgroundColor: card.textColor, opacity: 0.56 }} />

@@ -78,7 +78,7 @@ const Navbar = () => {
             duration: 0.8,
             ease: 'power2.out'
           })
-          gsap.to(nav, { color: COLORS.mainAccent, duration: 0.4, ease: 'power2.out' })
+          gsap.to(nav, { color: COLORS.secAccent, duration: 0.4, ease: 'power2.out' })
         }
       })
 
@@ -145,7 +145,7 @@ const Navbar = () => {
             py: 2,
             px: 4,
             borderRadius: '50px',
-            color: COLORS.mainAccent,
+            color: COLORS.secAccent,
             backgroundColor: 'transparent',
           }}
         >
