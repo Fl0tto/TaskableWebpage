@@ -13,7 +13,6 @@ gsap.registerPlugin(ScrollTrigger);
 const PricingView = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<HTMLDivElement[]>([]);
-    const videoRef = useRef<HTMLVideoElement>(null); // Added ref for the video
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -66,56 +65,23 @@ const PricingView = () => {
     };
 
     useGSAP(() => {
-        // --- 1. Cards Setup ---
         cardRefs.current.forEach((card, index) => {
             gsap.set(card, { position: 'absolute', top: 0, left: 0, transformOrigin: 'center center', width: '100%', force3D: true });
             if (index === 0) { 
                 gsap.set(card, { y: 0, scale: 1, rotation: 0, zIndex: 10 });
             } else if (index === 1) { 
-                gsap.set(card, { y: '3%', scale: 0.97, rotation: 2, zIndex: 8 });
+                gsap.set(card, { y: '3%', scale: 0.97, rotation: 2, zIndex: 12 });
             } else { 
-                gsap.set(card, { y: '150%', zIndex: 6 });
+                gsap.set(card, { y: '150%', zIndex: 8 });
             }
         });
-
-        // --- 2. Decoupled Video Scrubbing ---
-        const video = videoRef.current;
-        if (video) {
-            const videoScrub = { progress: 1 };
-            const setVideoToEnd = () => {
-                if (video.duration) {
-                    video.currentTime = video.duration - 0.001;
-                    videoScrub.progress = 1;
-                }
-            };
-            
-            video.addEventListener('loadedmetadata', setVideoToEnd, { once: true });
-            if (video.readyState >= 1) setVideoToEnd();
-
-            gsap.to(videoScrub, {
-                progress: 0,
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: '#get-started', // Using your anchor perfectly!
-                    start: 'top center', // Adjust this if you want the scrub to start sooner/later
-                    end: '+=150%', // Defines the total scroll length for the video scrub
-                    scrub: 1,
-                },
-                onUpdate: () => {
-                    if (video.duration) {
-                        video.currentTime = Math.max(0.001, Math.min(videoScrub.progress * video.duration, video.duration - 0.001));
-                    }
-                }
-            });
-        }
-
     }, { scope: containerRef, dependencies: [isMobile] });
 
     return (
-        <Box ref={containerRef} sx={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', backgroundColor: COLORS.mainBg }}>
+        <Box ref={containerRef} sx={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
             <Box
                 component="video"
-                ref={videoRef} // Attached the ref here!
+                className="pricing-view-video" // <-- Added so the parent timeline can scrub this!
                 muted
                 playsInline
                 preload="auto"
@@ -127,8 +93,8 @@ const PricingView = () => {
                     height: '100%',
                     objectFit: 'cover',
                     objectPosition: { xs: '0% 50%', md: '50% 50%' },
-                    zIndex: -1, 
-                    isolation: 'isolate'
+                    zIndex: 0, 
+                    transform: 'translateZ(0px)', // Keeps the video hardware accelerated safely
                 }}
             >
                 <source src="/videos/bg-3.mp4" type="video/mp4" />
@@ -179,9 +145,7 @@ const PricingView = () => {
                                 willChange: 'transform',
                                 color: COLORS.offWhite,
                                 zIndex: 20, 
-                                '&:hover': {
-                                    color: COLORS.mainAccent
-                                }
+                                '&:hover': { color: COLORS.mainAccent }
                             }}
                         >
                             <ArrowRightCircle size={48} />

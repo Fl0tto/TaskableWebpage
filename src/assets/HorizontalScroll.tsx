@@ -17,7 +17,6 @@ const HorizontalScroll = () => {
     const cards = gsap.utils.toArray<HTMLElement>('.stacked-card');
 
     if (cards.length > 0) {
-      // Red card text animation on initial view
       gsap.from(cards[0].querySelector('.animated-text'), {
         y: 50,
         opacity: 0,
@@ -37,7 +36,7 @@ const HorizontalScroll = () => {
           pin: true,
           scrub: 1,
           start: 'center center',
-          end: '+=200%',
+          end: '+=200%', // Re-extended slightly to give your video scrub room to breathe
         },
       });
 
@@ -67,7 +66,7 @@ const HorizontalScroll = () => {
 
       // Animate Blue Layer
       tl.to(cards[2], {
-        y: '0vh', // Slide in from the bottom
+        y: '0vh', 
         ease: 'none',
         duration: 1,
         onUpdate: function(this: gsap.core.Tween) {
@@ -82,11 +81,36 @@ const HorizontalScroll = () => {
         }
       }, "1") 
       .to(cards[2], {
-        borderTopLeftRadius: '0.1px',
-        borderTopRightRadius: '0.1px',
+        borderRadius: '0px', // Cleaned up back to 0px
         duration: 0.2,
         ease: 'power1.inOut',
       }, "2"); 
+
+      // --- Re-synced Video Scrubbing ---
+      // We grab the video that lives inside PricingView and sync it to the master pinned timeline
+      const video3 = containerRef.current?.querySelector('.pricing-view-video') as HTMLVideoElement;
+      if (video3) {
+          const videoScrub = { progress: 1 }; 
+          const setVideoToEnd = () => {
+              if (video3.duration) {
+                  video3.currentTime = video3.duration - 0.001;
+                  videoScrub.progress = 1;
+              }
+          };
+          video3.addEventListener('loadedmetadata', setVideoToEnd, { once: true });
+          if (video3.readyState >= 1) setVideoToEnd();
+
+          tl.to(videoScrub, {
+              progress: 0, 
+              ease: 'none',
+              duration: 1.5, 
+              onUpdate: () => {
+                  if (video3.duration) {
+                      video3.currentTime = Math.max(0.001, Math.min(videoScrub.progress * video3.duration, video3.duration - 0.001));
+                  }
+              }
+          }, ">"); // Starts scrubbing exactly after the border radius animation finishes
+      }
     }
   }, { scope: containerRef });
 
@@ -149,8 +173,7 @@ const HorizontalScroll = () => {
               filter: index === 1 ? 'drop-shadow(-12px 0px 24px rgba(0, 0, 0, 0.35))' : index === 2 ? 'drop-shadow(0px -12px 24px rgba(0, 0, 0, 0.35))' : 'none',
               borderRadius: index === 2 ? '54px 54px 0 0' : '0',
               overflow: 'hidden',
-
-              // RE-ADDED: The magic fix for the vanishing UI
+              // WebKit mask strictly preserved to protect the UI
               WebkitMaskImage: '-webkit-radial-gradient(white, black)', 
             }}
           >
@@ -169,8 +192,8 @@ const HorizontalScroll = () => {
                 justifyContent: 'flex-start',
                 position: 'relative',
                 zIndex: 0,
-                  backgroundColor: card.color,
-                  clipPath: index === 1 ? 'polygon(11vh 0, 100% 0, 100% 100%, 0 100%)' : 'none',
+                backgroundColor: card.color,
+                clipPath: index === 1 ? 'polygon(11vh 0, 100% 0, 100% 100%, 0 100%)' : 'none',
               }}
             >
               {card.videoSrc && (
@@ -220,16 +243,10 @@ const HorizontalScroll = () => {
                   maxWidth: '1200px' 
                 }}
               >
-                <Typography 
-                  variant="h2" 
-                  sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, lineHeight: 1.1, letterSpacing: '-0.02em' }}
-                >
+                <Typography variant="h2" sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
                   {card.titleLine1 || ''}
                 </Typography>
-                <Typography 
-                  variant="h2" 
-                  sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, mb: 4, lineHeight: 1.1, letterSpacing: '-0.02em' }}
-                >
+                <Typography variant="h2" sx={{ color: card.textColor, opacity: 0.87, fontWeight: 700, fontSize: { xs: '36px', md: '64px' }, mb: 4, lineHeight: 1.1, letterSpacing: '-0.02em' }}>
                   {card.titleLine2 || ''}
                 </Typography>
                 <Box sx={{ position: 'relative', mt: { xs: 3, md: 4 }, maxWidth: '800px' }}>
