@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { COLORS } from '../colors';
-//import PricingCard from './reuse/PricingCard';
+import PricingView from './PricingView';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -43,7 +43,10 @@ const HorizontalScroll = () => {
           pin: true,
           scrub: 1,
           start: 'center center',
-        end: '+=350%', // Extended scroll duration to accommodate the extra 150vh virtual scroll
+          // This creates a scroll duration of 3.5x the viewport height.
+          // GSAP's pinSpacing automatically adds the necessary padding to the page to make this work,
+          // but it requires that there is no other pinned content immediately afterward.
+        end: '+=500%',
         },
       });
 
@@ -88,36 +91,14 @@ const HorizontalScroll = () => {
         }
       }, "1") // Absolute marker at 1 second
       .to(cards[2], {
-        borderTopLeftRadius: '0px',
-        borderTopRightRadius: '0px',
+        borderTopLeftRadius: '0.1px',
+        borderTopRightRadius: '0.1px',
         duration: 0.2,
         ease: 'power1.inOut',
       }, "2"); // Absolute marker at 2 seconds
 
       // Video 3 Scrubbing Linked to Scroll
-      const vid3 = cards[2].querySelector('video') as HTMLVideoElement | null;
-      if (vid3) {
-        // This function sets the video's time to its very end.
-        const setVideoToEnd = () => {
-          if (vid3.duration) vid3.currentTime = vid3.duration;
-        };
-
-        // Set the video to its end frame once metadata is loaded to prevent a visual jump
-        // from the first frame to the last when the scroll-based scrubbing begins.
-        vid3.addEventListener('loadedmetadata', setVideoToEnd, { once: true });
-        if (vid3.readyState >= 1) setVideoToEnd(); // Manually trigger if already loaded.
-
-        const proxy = { progress: 0 };
-        tl.to(proxy, {
-          progress: 1,
-          duration: 1.83, // 0.33 (remaining 1/3 of the slide) + 1.5 (extra 150vh equivalent)
-          ease: 'none',
-          onUpdate: () => {
-            // By subtracting the progress from 1, we play the video in reverse
-            if (vid3.duration) vid3.currentTime = (1 - proxy.progress) * vid3.duration;
-          }
-        }, "1.66"); // Start exactly when card 3 slide is 2/3 complete (1 + 0.66)
-      }
+      // Video 3 scrubbing logic has been moved to the PricingView component
     }
   }, { scope: containerRef });
 
@@ -144,9 +125,8 @@ const HorizontalScroll = () => {
       id: 3, 
       color: COLORS.mainBg, // Solid Background Color
       isFullScreen: true,
-      videoSrc: '/videos/bg-3.mp4',
-      // You can define a custom React Component here that you want rendered as the full-screen content:
-      // CustomComponent: MyCustomReactComponent 
+      // The video is now inside PricingView
+      CustomComponent: PricingView,
     },
   ];
 
@@ -187,28 +167,7 @@ const HorizontalScroll = () => {
           >
             {card.isFullScreen ? (
               <Box sx={{ width: '100%', height: '100%', backgroundColor: card.color, position: 'relative' }}>
-                {card.videoSrc && (
-                  <Box
-                    component="video"
-                    muted
-                    playsInline
-                    preload="auto"
-                    sx={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: { xs: '0% 50%', md: '50% 50%' }, // Align left on mobile, center on desktop
-                      zIndex: 0,
-                    }}
-                  >
-                    <source src={card.videoSrc} type="video/mp4" />
-                  </Box>
-                )}
-                {/* Option to render a custom React Component as full-screen content*/ }
-                  
+                {card.CustomComponent && <card.CustomComponent />}
               </Box>
             ) : (
               <Box

@@ -7,6 +7,7 @@ import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import './App.css'
+import PricingCard from "./assets/reuse/PricingCard"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -46,6 +47,7 @@ function App() {
       </div>
       <HorizontalScroll />
     </div>
+    
   )
 }
 

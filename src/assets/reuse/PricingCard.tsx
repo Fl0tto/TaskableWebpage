@@ -22,12 +22,12 @@ const PricingCard = ({
 }: PricingCardProps) => {
     
     return(
-        <Box sx={{padding: '15rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}> 
+        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}> 
             <Box sx={{
-                width: '22rem',
+                width: highlight ? { xs: '19rem', md: '26rem' } : { xs: '17rem', md: '22rem' },
                 minHeight: '16rem',
                 p: '0',
-                borderRadius: '56px',
+                borderRadius: { xs: '40px', md: '56px' },
                 border: `1px solid ${COLORS.mainBg}`,
                 bgcolor: COLORS.offWhite,
                 display: 'flex',
@@ -36,15 +36,15 @@ const PricingCard = ({
                 overflow: 'hidden' // Ensure content respects the large border radius
             }}>
                 <Box sx={{
-                    p: '2.5rem',
+                    p: { xs: '2rem', md: '2.5rem' },
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
+                    alignItems: 'left',
                     background: highlight ? `linear-gradient(to bottom, ${COLORS.mainAccent}, ${COLORS.tertAccent})` : `linear-gradient(to bottom, ${COLORS.offWhite}, ${COLORS.offGrey})`,
-                    textAlign: 'center',
+                    textAlign: 'left',
                 }}>
-                    <Typography sx={{ fontSize: '1.25rem', fontWeight: '600', color: COLORS.offBlack, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</Typography>
-                    <Typography sx={{ fontSize: '3.5rem', fontWeight: '800', color: COLORS.offBlack, my: '1rem', lineHeight: 1 }}>{price}</Typography>
+                    <Typography sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' }, fontWeight: '600', color: COLORS.offBlack, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</Typography>
+                    <Typography sx={{ fontSize: { xs: '3rem', md: '3.5rem' }, fontWeight: '800', color: COLORS.offBlack, my: '1rem', lineHeight: 1 }}>{price}</Typography>
                     <Button 
                         buttonType={highlight ? 'Highlight' : 'Active'} 
                         text={buttonText} 
@@ -62,11 +62,11 @@ const PricingCard = ({
                         }}
                     />
                 </Box>
-                <Box sx={{ p: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', flexGrow: 1 }}>
+                <Box sx={{ p: { xs: '2rem', md: '2.5rem' }, display: 'flex', flexDirection: 'column', gap: { xs: '1rem', md: '1.5rem' }, flexGrow: 1 }}>
                     {features.map((feature, index) => (
                         <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <Typography sx={{ color: COLORS.mainAccent, fontSize: '1.25rem', lineHeight: 1 }}>✔</Typography>
-                            <Typography sx={{ fontSize: '1rem', color: 'rgba(0,0,0,0.6)' }}>{feature}</Typography>
+                            <Typography sx={{ fontSize: { xs: '0.9rem', md: '1rem' }, color: 'rgba(0,0,0,0.6)' }}>{feature}</Typography>
                         </Box>
                     ))}
                 </Box>
