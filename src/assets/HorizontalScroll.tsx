@@ -14,12 +14,6 @@ const HorizontalScroll = () => {
   const [activeCards, setActiveCards] = useState<number[]>([]);
 
   useGSAP(() => {
-    // 1. Initialize Lenis for smooth scrolling
-    // Note: If you already have Lenis wrapping your App globally, 
-    // you can remove this local instantiation.
-
-
-    // 2. Stacked Scroll Logic
     const cards = gsap.utils.toArray<HTMLElement>('.stacked-card');
 
     if (cards.length > 0) {
@@ -43,10 +37,7 @@ const HorizontalScroll = () => {
           pin: true,
           scrub: 1,
           start: 'center center',
-          // This creates a scroll duration of 3.5x the viewport height.
-          // GSAP's pinSpacing automatically adds the necessary padding to the page to make this work,
-          // but it requires that there is no other pinned content immediately afterward.
-        end: '+=500%',
+          end: '+=200%',
         },
       });
 
@@ -89,16 +80,13 @@ const HorizontalScroll = () => {
             }
           }
         }
-      }, "1") // Absolute marker at 1 second
+      }, "1") 
       .to(cards[2], {
         borderTopLeftRadius: '0.1px',
         borderTopRightRadius: '0.1px',
         duration: 0.2,
         ease: 'power1.inOut',
-      }, "2"); // Absolute marker at 2 seconds
-
-      // Video 3 Scrubbing Linked to Scroll
-      // Video 3 scrubbing logic has been moved to the PricingView component
+      }, "2"); 
     }
   }, { scope: containerRef });
 
@@ -107,7 +95,7 @@ const HorizontalScroll = () => {
       id: 1, 
       color: '#ffffff', 
       textColor: COLORS.offWhite,
-      videoSrc: '/videos/bg-1.mp4', // Example path, place your video in the public/videos folder
+      videoSrc: '/videos/bg-1.mp4', 
       titleLine1: 'AI Driven', 
       titleLine2: 'Time Recording',
       text: 'Have you already accepted having to remind your team of recording their times as unavoidable overhead? Taskable aims to trivialize time recordings unburdening your employees to reclaim their time focusing on the work that actually matters!',
@@ -123,16 +111,14 @@ const HorizontalScroll = () => {
     },
     { 
       id: 3, 
-      color: COLORS.mainBg, // Solid Background Color
+      color: COLORS.mainBg, 
       isFullScreen: true,
-      // The video is now inside PricingView
       CustomComponent: PricingView,
     },
   ];
 
   return (
     <Box id="features" sx={{ position: 'relative' }}>
-      {/* This anchor perfectly aligns with the exact scroll position where the 3rd card becomes fully deployed */}
       <Box id="get-started" sx={{ position: 'absolute', top: '90vh', left: 0, pointerEvents: 'none' }} />
       <Box
         ref={containerRef}
@@ -163,6 +149,9 @@ const HorizontalScroll = () => {
               filter: index === 1 ? 'drop-shadow(-12px 0px 24px rgba(0, 0, 0, 0.35))' : index === 2 ? 'drop-shadow(0px -12px 24px rgba(0, 0, 0, 0.35))' : 'none',
               borderRadius: index === 2 ? '54px 54px 0 0' : '0',
               overflow: 'hidden',
+
+              // RE-ADDED: The magic fix for the vanishing UI
+              WebkitMaskImage: '-webkit-radial-gradient(white, black)', 
             }}
           >
             {card.isFullScreen ? (
@@ -198,17 +187,13 @@ const HorizontalScroll = () => {
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    zIndex: -2, // Places it behind the text and overlay
-                    // Optional: you can blend it with the card's theme color using opacity or mix-blend-mode
-                    // opacity: 0.6, 
+                    zIndex: -2, 
                   }}
                 >
-                  {/* If you add WebM versions, put the <source src="...webm" type="video/webm" /> tag first! */}
                   <source src={card.videoSrc} type="video/mp4" />
                 </video>
               )}
               
-              {/* Optional color overlay to ensure text remains readable over unpredictable video frames */}
               {card.videoSrc && (
                 <Box
                   sx={{
@@ -218,9 +203,9 @@ const HorizontalScroll = () => {
                     width: '100%',
                     height: '100%',
                     backgroundColor: card.color,
-                    opacity: 0.85, // Adjust this to let more or less video show through
+                    opacity: 0.85, 
                     zIndex: -1,
-                    mixBlendMode: 'multiply' // You can experiment with 'multiply', 'overlay', 'soft-light'
+                    mixBlendMode: 'multiply' 
                   }}
                 />
               )}
@@ -230,7 +215,7 @@ const HorizontalScroll = () => {
                 sx={{ 
                   mt: { xs: '25vh', md: '30vh' },
                   textAlign: 'left', 
-                  pl: { xs: 'calc(11vh + 32px)', md: 'calc(11vh + 80px)' }, // Unified padding aligns headers perfectly relative to screen
+                  pl: { xs: 'calc(11vh + 32px)', md: 'calc(11vh + 80px)' }, 
                   pr: index === 1 ? { xs: 'calc(10vw + 32px)', md: 'calc(10vw + 80px)' } : { xs: 4, md: 10 },
                   maxWidth: '1200px' 
                 }}
@@ -248,7 +233,6 @@ const HorizontalScroll = () => {
                   {card.titleLine2 || ''}
                 </Typography>
                 <Box sx={{ position: 'relative', mt: { xs: 3, md: 4 }, maxWidth: '800px' }}>
-                  {/* Vertical Line extending +1rem top and bottom */}
                   <Box sx={{ position: 'absolute', top: '-1rem', bottom: '-1rem', left: 0, width: '2px', backgroundColor: card.textColor, opacity: 0.56 }} />
                   <Typography variant="body1" sx={{ color: card.textColor, opacity: 0.56, pl: { xs: 3, md: 4 }, fontSize: { xs: '16px', md: '20px' }, lineHeight: 1.6 }}>
                     {card.text}

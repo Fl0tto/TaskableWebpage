@@ -22,7 +22,6 @@ class ErrorBoundary extends Component<{children: ReactNode}, {error: string | nu
 
 function App() {
   useEffect(() => {
-    // ── Single Lenis instance for the whole app ──
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => 1 - Math.pow(1 - t, 4), 

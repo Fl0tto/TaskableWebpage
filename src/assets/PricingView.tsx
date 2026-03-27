@@ -13,6 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 const PricingView = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<HTMLDivElement[]>([]);
+    const videoRef = useRef<HTMLVideoElement>(null); // Added ref for the video
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -61,47 +62,52 @@ const PricingView = () => {
                 { y: '200vh' },
                 { y: '3%', scale: 0.97, rotation: 2, duration: 0.5, ease: 'power2.out' }, '<'
             )
-            // Wait for exit animation to fully complete before repositioning
-            .set(currentEl, { y: '200vh', rotation: 0, zIndex: 6 }); // ← added rotation reset
+            .set(currentEl, { y: '200vh', rotation: 0, zIndex: 6 });
     };
 
     useGSAP(() => {
-        const video = containerRef.current?.querySelector('video');
+        // --- 1. Cards Setup ---
+        cardRefs.current.forEach((card, index) => {
+            gsap.set(card, { position: 'absolute', top: 0, left: 0, transformOrigin: 'center center', width: '100%', force3D: true });
+            if (index === 0) { 
+                gsap.set(card, { y: 0, scale: 1, rotation: 0, zIndex: 10 });
+            } else if (index === 1) { 
+                gsap.set(card, { y: '3%', scale: 0.97, rotation: 2, zIndex: 8 });
+            } else { 
+                gsap.set(card, { y: '150%', zIndex: 6 });
+            }
+        });
 
+        // --- 2. Decoupled Video Scrubbing ---
+        const video = videoRef.current;
         if (video) {
+            const videoScrub = { progress: 1 };
             const setVideoToEnd = () => {
-                // Set slightly before the absolute end to prevent hardware layer teardown
-                if (video.duration) video.currentTime = video.duration - 0.001;
+                if (video.duration) {
+                    video.currentTime = video.duration - 0.001;
+                    videoScrub.progress = 1;
+                }
             };
+            
             video.addEventListener('loadedmetadata', setVideoToEnd, { once: true });
             if (video.readyState >= 1) setVideoToEnd();
 
-            ScrollTrigger.create({
-                trigger: containerRef.current,
-                start: 'top -50%',
-                end: '+=200%',
-                scrub: true,
-                onUpdate: (self) => {
+            gsap.to(videoScrub, {
+                progress: 0,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '#get-started', // Using your anchor perfectly!
+                    start: 'top center', // Adjust this if you want the scrub to start sooner/later
+                    end: '+=150%', // Defines the total scroll length for the video scrub
+                    scrub: 1,
+                },
+                onUpdate: () => {
                     if (video.duration) {
-                        const time = (1 - self.progress) * video.duration;
-                        // Clamp the time to prevent the video from reaching exactly 0 or duration
-                        video.currentTime = Math.max(0.001, Math.min(time, video.duration - 0.001));
+                        video.currentTime = Math.max(0.001, Math.min(videoScrub.progress * video.duration, video.duration - 0.001));
                     }
                 }
             });
         }
-
-        // Unified card animation setup for both mobile and desktop
-        cardRefs.current.forEach((card, index) => {
-            gsap.set(card, { position: 'absolute', top: 0, left: 0, transformOrigin: 'center center', width: '100%' });
-            if (index === 0) { // Active card
-                gsap.set(card, { y: 0, scale: 1, rotation: 0, zIndex: 10 });
-            } else if (index === 1) { // Next card in the stack
-                gsap.set(card, { y: '3%', scale: 0.97, rotation: 2, zIndex: 8 });
-            } else { // All other cards waiting off-screen
-                gsap.set(card, { y: '150%', zIndex: 6 });
-            }
-        });
 
     }, { scope: containerRef, dependencies: [isMobile] });
 
@@ -109,6 +115,7 @@ const PricingView = () => {
         <Box ref={containerRef} sx={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', backgroundColor: COLORS.mainBg }}>
             <Box
                 component="video"
+                ref={videoRef} // Attached the ref here!
                 muted
                 playsInline
                 preload="auto"
@@ -120,7 +127,7 @@ const PricingView = () => {
                     height: '100%',
                     objectFit: 'cover',
                     objectPosition: { xs: '0% 50%', md: '50% 50%' },
-                    zIndex: 0,
+                    zIndex: -1, 
                     isolation: 'isolate'
                 }}
             >
@@ -135,7 +142,8 @@ const PricingView = () => {
                 top: '20%',
                 display: 'flex',
                 alignItems: 'center',
-                transform: 'translateZ(0px)', // Force new stacking context to prevent video glitching
+                transform: 'translateZ(0px)',
+                transformStyle: 'preserve-3d', 
                 justifyContent: { xs: 'center', md: 'flex-end' },
             }}>
                 <Box sx={{
@@ -147,14 +155,16 @@ const PricingView = () => {
                     position: 'relative',
                     transform: { xs: 'translateX(-10%)', md: 'none' },
                     pr: { md: '5%' },
-                    mt: { xs: '8rem', md: 0 }
+                    mt: { xs: '8rem', md: 0 },
+                    transformStyle: 'preserve-3d', 
                 }}>
-                    <Box sx={{ position: 'relative', width: { xs: '17rem', md: '22rem' }, height: { xs: '36rem', md: '42rem' } }}>
+                    <Box sx={{ position: 'relative', width: { xs: '17rem', md: '22rem' }, height: { xs: '36rem', md: '42rem' }, transformStyle: 'preserve-3d' }}>
                         {pricingCardsData.map((card, index) => (
                             <Box
                                 key={index}
                                 ref={(el: HTMLDivElement | null) => { if (el) cardRefs.current[index] = el; }}
                                 className="pricing-card-container"
+                                sx={{ willChange: 'transform' }} 
                             >
                                 <PricingCard {...card} />
                             </Box>
@@ -163,11 +173,12 @@ const PricingView = () => {
                             onClick={handleNextCard}
                             sx={{
                                 position: 'absolute',
-                                top: '50%',
-                                right: { xs: '-60px', md: '-80px' },
-                                transform: 'translateY(-50%)',
+                                top: '40%',
+                                right: { xs: '-4rem', md: '-6rem' },
+                                transform: 'translateY(-50%) translateZ(10px)', 
+                                willChange: 'transform',
                                 color: COLORS.offWhite,
-                                zIndex: 20, // Ensure it's always on top
+                                zIndex: 20, 
                                 '&:hover': {
                                     color: COLORS.mainAccent
                                 }
