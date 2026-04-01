@@ -5,8 +5,8 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { COLORS } from '../colors';
-import PricingCard from './reuse/PricingCard';
+import { COLORS } from '../../style';
+import PricingCard from '../reuse/PricingCard';
 
 gsap.registerPlugin(ScrollTrigger);
 

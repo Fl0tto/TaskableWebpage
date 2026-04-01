@@ -1,7 +1,6 @@
-import React from 'react'
 import { Box, Typography } from '@mui/material';
-import { COLORS } from '../../colors';
-import Button from './Button';
+import { THEME, FONTS } from '../../style';
+import TaskableButton from './TaskableButton';
 
 interface PricingCardProps {
   title?: string;
@@ -9,70 +8,129 @@ interface PricingCardProps {
   buttonText?: string;
   features?: string[];
   highlight?: boolean;
-  onClick?: () => void; // Optional overrides layout per-screen
+  onClick?: () => void;
 }
 
 const PricingCard = ({
-    title = "Plan", 
-    price = "$XX", 
-    buttonText = "Choose", 
-    features = ["One feature", "Another feature"], 
-    highlight = false, 
-    onClick 
+  title    = 'Plan',
+  price    = '—',
+  buttonText = 'Choose',
+  features = ['One feature', 'Another feature'],
+  highlight = false,
+  onClick,
 }: PricingCardProps) => {
-    
-    return(
-        <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}> 
-            <Box sx={{
-                width: highlight ? { xs: '19rem', md: '26rem' } : { xs: '17rem', md: '22rem' },
-                minHeight: '16rem',
-                p: '0',
-                borderRadius: { xs: '40px', md: '56px' },
-                border: `1px solid ${COLORS.mainBg}`,
-                bgcolor: COLORS.offWhite,
-                display: 'flex',
-                flexDirection: 'column',
-                boxShadow: '0 1.5rem 3rem rgba(200, 146, 42, 0.15)',
-                overflow: 'hidden' // Ensure content respects the large border radius
-            }}>
-                <Box sx={{
-                    p: { xs: '2rem', md: '2.5rem' },
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'left',
-                    background: highlight ? `linear-gradient(to bottom, ${COLORS.mainAccent}, ${COLORS.tertAccent})` : `linear-gradient(to bottom, ${COLORS.offWhite}, ${COLORS.offGrey})`,
-                    textAlign: 'left',
-                }}>
-                    <Typography sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' }, fontWeight: '600', color: COLORS.offBlack, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</Typography>
-                    <Typography sx={{ fontSize: { xs: '3rem', md: '3.5rem' }, fontWeight: '800', color: COLORS.offBlack, my: '1rem', lineHeight: 1 }}>{price}</Typography>
-                    <Button 
-                        buttonType={highlight ? 'Highlight' : 'Active'} 
-                        text={buttonText} 
-                        onClick={onClick} 
-                        sx={{
-                            width: '100%',
-                            ...(!highlight && { // Custom styles for non-highlighted card button
-                                color: COLORS.offBlack,
-                                backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                                borderColor: 'rgba(0, 0, 0, 0.2)',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                                }
-                            })
-                        }}
-                    />
-                </Box>
-                <Box sx={{ p: { xs: '2rem', md: '2.5rem' }, display: 'flex', flexDirection: 'column', gap: { xs: '1rem', md: '1.5rem' }, flexGrow: 1 }}>
-                    {features.map((feature, index) => (
-                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <Typography sx={{ color: COLORS.mainAccent, fontSize: '1.25rem', lineHeight: 1 }}>✔</Typography>
-                            <Typography sx={{ fontSize: { xs: '0.9rem', md: '1rem' }, color: 'rgba(0,0,0,0.6)' }}>{feature}</Typography>
-                        </Box>
-                    ))}
-                </Box>
-            </Box>
-        </Box>
-    )
-}
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '20px',
+        border: highlight
+          ? `1.5px solid ${THEME.textPrimary}`
+          : `1.5px solid ${THEME.border}`,
+        backgroundColor: THEME.bg,
+        overflow: 'hidden',
+        boxShadow: highlight
+          ? '0 8px 40px rgba(0, 0, 0, 0.10)'
+          : '0 2px 12px rgba(0, 0, 0, 0.04)',
+        transition: 'box-shadow 0.22s ease',
+        '&:hover': {
+          boxShadow: highlight
+            ? '0 12px 48px rgba(0, 0, 0, 0.14)'
+            : '0 6px 24px rgba(0, 0, 0, 0.08)',
+        },
+      }}
+    >
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <Box
+        sx={{
+          p: '2rem',
+          borderBottom: `1px solid ${THEME.border}`,
+          backgroundColor: highlight ? THEME.bgAlt : THEME.bg,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.25rem',
+        }}
+      >
+        {/* Plan label */}
+        <Typography
+          sx={{
+            fontFamily: FONTS.body,
+            fontSize: '0.6875rem',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: highlight ? THEME.textPrimary : THEME.textMuted,
+          }}
+        >
+          {title}
+        </Typography>
 
-export default PricingCard
+        {/* Price */}
+        <Typography
+          sx={{
+            fontFamily: FONTS.heading,
+            fontSize: { xs: '2rem', md: '2.25rem' },
+            fontWeight: 800,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+            color: THEME.textPrimary,
+          }}
+        >
+          {price}
+        </Typography>
+
+        {/* CTA */}
+        <TaskableButton
+          buttonType={highlight ? 'Highlight' : 'Active'}
+          text={buttonText}
+          onClick={onClick}
+        />
+      </Box>
+
+      {/* ── Feature list ───────────────────────────────────────────────────── */}
+      <Box
+        sx={{
+          p: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.875rem',
+          flexGrow: 1,
+        }}
+      >
+        {features.map((feature, index) => (
+          <Box
+            key={index}
+            sx={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem' }}
+          >
+            <Typography
+              sx={{
+                fontFamily: FONTS.body,
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: THEME.textPrimary,
+                flexShrink: 0,
+                lineHeight: 1.5,
+              }}
+            >
+              ✓
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: FONTS.body,
+                fontSize: { xs: '0.875rem', md: '0.9375rem' },
+                color: THEME.textSecondary,
+                lineHeight: 1.5,
+              }}
+            >
+              {feature}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
+export default PricingCard;

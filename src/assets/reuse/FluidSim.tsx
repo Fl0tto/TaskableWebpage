@@ -1,7 +1,7 @@
 import { Fluid } from '@whatisjery/react-fluid-distortion';
 import { EffectComposer } from '@react-three/postprocessing';
 import { Canvas } from '@react-three/fiber';
-import { COLORS } from '../colors';
+import { COLORS } from '../../style';
 
 const FluidSim = () => {
   return (
@@ -19,10 +19,10 @@ const FluidSim = () => {
       }}>
       <EffectComposer>
         <Fluid
-          fluidColor={COLORS.mainAccent}
+          fluidColor={COLORS.offGrey}
           showBackground={false}
-          blend={20}
-          intensity={.2}
+          blend={1}
+          intensity={.001}
           radius={0.166}
           distortion={2}
           force={2.5}

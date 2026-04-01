@@ -5,14 +5,15 @@ import { Model as WebsiteRocket } from "./WebsiteRocket"
 import { Mesh, Vector3, CatmullRomCurve3} from "three"
 import { useMediaQuery, useTheme, Box, Typography } from "@mui/material"
 import * as THREE from "three"
-import { COLORS } from '../colors'
+import { THEME } from '../../style'
+import HalftoneEffect from "../Shaders"
 
 const ROCKET_POS = new Vector3(0, 0, 0)
 
 const CAMERA_PATH = [
-  new Vector3(3,  7,  10),  // start — front
-  new Vector3(-5,  9,   7),  // gentler mid point, not so far left
-  new Vector3(-8,  10, -2),  // end — behind and above
+  new Vector3(0,  5,  10),  // start — front
+  new Vector3(6,  12,  4),  // gentler mid point, not so far left
+  new Vector3(8,  14, 1),  // end — behind and above
 ]
 
 const CAMERA_CURVE = new CatmullRomCurve3(CAMERA_PATH)
@@ -49,7 +50,7 @@ const CameraRig = () => {
       camera.getWorldDirection(forward)
       const right = new Vector3()
       right.crossVectors(forward, camera.up).normalize()
-      const lookTarget = ROCKET_POS.clone().add(right.multiplyScalar(5.6)).add(new Vector3(0,  2,  0))
+      const lookTarget = ROCKET_POS.clone().add(right.multiplyScalar(-1)).add(new Vector3(0,  4,  0))
       camera.lookAt(lookTarget)
     }
   })
@@ -59,7 +60,8 @@ const CameraRig = () => {
 
 // ─── Star Particles ───────────────────────────────────────────────────────────
 const StarParticles = () => {
-  const count = 15;
+  //return
+  const count = 20;
   const meshRef = useRef<THREE.Points>(null!)
 
   const [positions, velocities] = useMemo(() => {
@@ -67,8 +69,8 @@ const StarParticles = () => {
     const velocities = new Float32Array(count)
 
     for (let i = 0; i < count; i++) {
-      positions[i * 3 + 0] = (Math.random() - 0.5) * 10
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 10
+      positions[i * 3 + 0] = (Math.random() - 0.5) * 15
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 15
       positions[i * 3 + 2] = (Math.random() - 0.5) * 4
       velocities[i] = 0.02 + Math.random() * 0.12
     }
@@ -98,13 +100,14 @@ const StarParticles = () => {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={0.15} color={COLORS.mainAccent} transparent opacity={0.8} sizeAttenuation />
+      <pointsMaterial size={0.15} color={THEME.textPrimary} transparent opacity={0.8} sizeAttenuation />
     </points>
   )
 }
 
 // ─── Rocket Exhaust Particles ──────────────────────────────────────────────────
 const RocketExhaust = ({ position, isMobile }: { position: [number, number, number], isMobile: boolean }) => {
+  return
   const count = 200;
   const meshRef = useRef<THREE.Points>(null!);
   
@@ -295,8 +298,8 @@ function AsciiRenderer({ characters = ' ●◉◍◎○◌◦·', ...options }) 
     effect.domElement.style.margin = '0'
     effect.domElement.style.padding = '0'
     effect.domElement.style.lineHeight = '1'
-    effect.domElement.style.color = COLORS.mainAccent
-    effect.domElement.style.backgroundColor = COLORS.mainBg
+    effect.domElement.style.color = THEME.accent
+    effect.domElement.style.backgroundColor = 'white'
     effect.domElement.style.pointerEvents = 'none'
     return effect
   }, [characters, options.invert, gl])
@@ -339,7 +342,7 @@ const Renderer = () => {
   
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-      <Canvas 
+      <Canvas style={{ background: "white" }}
         frameloop={frameloop}
         camera={{ position: [3, 4, 13], fov: isMobile ? 60 : 50}}
         onCreated={({ gl }) => {
@@ -358,40 +361,26 @@ const Renderer = () => {
           }
         }}
       >
-        <AsciiRenderer characters={isMobile ? ' .~*O' : ' ●◉◍◎○◌◦·'}/>
-        <directionalLight position={[-20, 4, 10]} />
-        <ambientLight intensity={0.1} />
+        <HalftoneEffect
+        gridSize={120}
+        dotScale={.95}
+        edgeSoft={.1}
+        invertLuminance={true}
+        colorMix={0}      // 0 = mono, 1 = scene-coloured dots
+        dotColor={THEME.textPrimary}
+        bgColor={THEME.bg}
+        sampleRadius={2}
+        hideBackground={true}
+      />
+        <directionalLight position={[-20, 4, 10] } intensity={5} />
+        <ambientLight intensity={0.01} />
         <Rocket position={[0, 0, 0]} rocketExhaustKey={rocketExhaustKey} />
         <CameraRig />
       </Canvas>
-      <Box sx={{
-        position: 'absolute',
-        top: { xs: '50%', md: '50%' },
-        left: { xs: '50%', md: 'auto' },
-        right: { xs: 'auto', md: '10%' },
-        transform: { xs: 'translate(-50%, -50%)', md: 'translateY(-50%)' },
-        pointerEvents: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: { xs: 'center', md: 'flex-end' },
-        zIndex: 10,
-        // Mobile-only enhancements
-        opacity: { xs: 0.7, md: 1 },
-        backgroundColor: 'transparent',
-        borderRadius: { xs: '12px', md: 0 },
-      }}>
-        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: { xs: 'center', md: 'right' }, lineHeight: 1.1, fontSize: { xs: '4.5rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
-          Reclaim
-        </Typography>
-        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: { xs: 'center', md: 'right' }, lineHeight: 1.1, fontSize: { xs: '4.5rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
-          your
-        </Typography>
-        <Typography variant="h1" sx={{ color: COLORS.offWhite, fontWeight: 700, textAlign: { xs: 'center', md: 'right' }, lineHeight: 1.1, fontSize: { xs: '4.5rem', md: '7rem' }, letterSpacing: '-0.02em' }}>
-          Time
-        </Typography>
-      </Box>
     </Box>
   )
 }
 
 export default Renderer
+
+//<AsciiRenderer characters={isMobile ? ' .~*O' : ' ●◉◍◎○◌◦·'}/>

@@ -5,7 +5,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import FluidSim from './FluidSim';
-import { COLORS } from '../colors';
+import { THEME } from '../../style';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,10 +64,11 @@ const Navbar = () => {
             backgroundColor: 'rgba(255, 255, 255, 0.166)',
             backdropFilter: 'blur(4px)',
             border: '1px solid rgba(91, 191, 181, 0.2)',
+            boxShadow: `inset 0 -.15rem .15rem ${THEME.bgAlt}, inset 0 .15rem .15rem ${THEME.bg}`,
             duration: 0.8,
             ease: 'power2.out'
           })
-          gsap.to(nav, { color: COLORS.mainBg, duration: 0.4, ease: 'power2.out' })
+          gsap.to(nav, { color: THEME.textPrimary, duration: 0.4, ease: 'power2.out' })
         },
         onLeaveBack: () => {
           setFluidVisible(false)
@@ -76,13 +77,14 @@ const Navbar = () => {
             backdropFilter: 'blur(0px)',
             border: '1px solid transparent',
             duration: 0.8,
+            boxShadow: 'none',
             ease: 'power2.out'
           })
-          gsap.to(nav, { color: COLORS.secAccent, duration: 0.4, ease: 'power2.out' })
+          gsap.to(nav, { color: THEME.accent, duration: 0.4, ease: 'power2.out' })
         }
       })
 
-      if (isMobile && nav) {
+      if (false && nav) {
         // Start at the bottom, then scrub back to the top synchronously with the Renderer exit
         gsap.fromTo(nav,
           { y: () => getSVH() - nav.offsetHeight - 48 }, // Use actual svh pixels for a flawless start position
@@ -145,7 +147,7 @@ const Navbar = () => {
             py: 2,
             px: 4,
             borderRadius: '50px',
-            color: COLORS.secAccent,
+            color: THEME.accent,
             backgroundColor: 'transparent',
           }}
         >

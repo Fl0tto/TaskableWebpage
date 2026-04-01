@@ -4,7 +4,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { COLORS } from '../colors';
+import { COLORS } from '../../style';
 import PricingView from './PricingView';
 
 gsap.registerPlugin(ScrollTrigger);
