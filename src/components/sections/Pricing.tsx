@@ -1,33 +1,38 @@
 import { Box, Typography } from '@mui/material';
 import { TEXT_STYLES, THEME } from '../../style';
+import {useState} from 'react'
 import PricingCard from '../../assets/reuse/PricingCard';
-
-// TODO: Review and finalise pricing data
-const pricingData = [
-  {
-    title: 'Trial',
-    price: 'Free',
-    buttonText: 'Start for free',
-    features: ['14-day free trial', 'No credit card required'],
-    highlight: false,
-  },
-  {
-    title: 'Pro',
-    price: '9€ / month',
-    buttonText: 'Get started',
-    features: ['Full access to all features', 'Get going today', 'Price per user'],
-    highlight: true,
-  },
-  {
-    title: 'Enterprise',
-    price: 'Custom',
-    buttonText: 'Request a quote',
-    features: ['Implementation & integration support', 'Priority access', 'Fully custom pricing model'],
-    highlight: false,
-  },
-];
+import RequestTenantPopup from '../../assets/reuse/RequestTenantPopup';
 
 const Pricing = () => {
+  const [popupOpen, setPopupOpen] = useState(false);
+
+  // TODO: Review and finalise pricing data
+  const pricingData = [
+    {
+      title: 'Trial',
+      price: 'Free',
+      buttonText: 'Start for free',
+      features: ['14-day free trial', 'No credit card required'],
+      highlight: false,
+      onClick: () => setPopupOpen(true),
+    },
+    {
+      title: 'Pro',
+      price: '9€ / month',
+      buttonText: 'Get started',
+      features: ['Full access to all features', 'Get going today', 'Price per user'],
+      highlight: true,
+    },
+    {
+      title: 'Enterprise',
+      price: 'Custom',
+      buttonText: 'Request a quote',
+      features: ['Implementation & integration support', 'Priority access', 'Fully custom pricing model'],
+      highlight: false,
+    },
+  ];
+
   return (
     <Box
       component="section"
@@ -38,6 +43,7 @@ const Pricing = () => {
         backgroundColor: THEME.bg,
       }}
     >
+      <RequestTenantPopup open={popupOpen} onClose={() => setPopupOpen(false)} />
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
 
         {/* Section label + heading */}
