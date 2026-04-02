@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import FluidSim from './FluidSim';
 import { THEME } from '../../style';
+import TaskableLogo from './TaskableLogo';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -151,9 +152,11 @@ const Navbar = () => {
             backgroundColor: 'transparent',
           }}
         >
-          <Typography variant="h5" onClick={() => scrollToSection('top')} sx={{ fontWeight: 800, letterSpacing: '-0.02em', zIndex: 2, cursor: 'pointer' }}>
-            Taskable.
-          </Typography>
+          <Box sx={{display: 'flex', alignItems: 'center'}}>
+            <Typography variant="h5" onClick={() => scrollToSection('top')} sx={{ fontWeight: 800, letterSpacing: '-0.02em', zIndex: 2, cursor: 'pointer' }}>
+              Taskable.
+            </Typography>
+          </Box>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center', zIndex: 2 }}>
             <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('features')}>Features</Typography>

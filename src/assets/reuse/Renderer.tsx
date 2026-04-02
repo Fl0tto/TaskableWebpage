@@ -59,7 +59,7 @@ const CameraRig = () => {
 
 // ─── Star Particles ───────────────────────────────────────────────────────────
 const StarParticles = () => {
-  //return
+  return
   const count = 20;
   const meshRef = useRef<THREE.Points>(null!)
 
@@ -106,8 +106,8 @@ const StarParticles = () => {
 
 // ─── Rocket Exhaust Particles ──────────────────────────────────────────────────
 const RocketExhaust = ({ position, isMobile }: { position: [number, number, number], isMobile: boolean }) => {
-  return
-  const count = 200;
+  //return
+  const count = 50;
   const meshRef = useRef<THREE.Points>(null!);
   
   const [positions, velocities, ages, sizes] = useMemo(() => {
@@ -135,7 +135,7 @@ const RocketExhaust = ({ position, isMobile }: { position: [number, number, numb
 
   const ParticleShaderMaterial = useMemo(() => new THREE.ShaderMaterial({
     uniforms: {
-      color: { value: new THREE.Color(THEME.accent) },
+      color: { value: new THREE.Color(THEME.textPrimary) },
     },
     vertexShader: `
       attribute float age;
@@ -304,16 +304,16 @@ const Renderer = () => {
         }}
       >
         <HalftoneEffect
-        gridSize={isMobile ? 80 : 120}
-        dotScale={.95}
-        edgeSoft={.1}
-        invertLuminance={true}
-        colorMix={0}      // 0 = mono, 1 = scene-coloured dots
-        dotColor={THEME.textPrimary}
-        bgColor={THEME.bg}
-        sampleRadius={2}
-        hideBackground={true}
-      />
+          gridSize={isMobile ? 80 : 120}
+          dotScale={.95}
+          edgeSoft={.1}
+          invertLuminance={true}
+          colorMix={0}      // 0 = mono, 1 = scene-coloured dots
+          dotColor={THEME.textPrimary}
+          bgColor={THEME.bg}
+          sampleRadius={2}
+          hideBackground={true}
+        />
         <directionalLight position={[-14, 8, 10] } intensity={5} />
         <ambientLight intensity={0.01} />
         <Rocket position={[0, 0, 0]} rocketExhaustKey={rocketExhaustKey} />

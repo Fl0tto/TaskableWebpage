@@ -22,7 +22,7 @@ const FluidSim = () => {
           fluidColor={COLORS.offGrey}
           showBackground={false}
           blend={1}
-          intensity={.001}
+          intensity={.01}
           radius={0.166}
           distortion={2}
           force={2.5}

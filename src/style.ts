@@ -18,7 +18,7 @@ export const THEME = {
   textPrimary:   '#0A0A0A',   // headings, high-emphasis text
   textSecondary: '#525252',   // body text, descriptions
   textMuted:     '#A3A3A3',   // captions, labels, placeholders
-  accent:        COLORS.mainAccent,  // CTA buttons, highlights — reuse legacy accent
+  accent:        '#C8922A',  // CTA buttons, highlights — reuse legacy accent
 };
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────

@@ -8,7 +8,7 @@ const GAP = 32;
 const SLOT = ITEM_WIDTH + GAP; // total space one card occupies
 
 // Speed kept identical to the old CSS animation: 1 slot per 1.2s
-const SPEED_PX_PER_SEC = SLOT / 1.2; // ≈ 193 px/s
+const SPEED_PX_PER_SEC = SLOT / 3; // ≈ 193 px/s
 
 // Lerp factor applied each frame (60 fps assumed for the ease curve).
 // 0.08 → reaches ~95 % of target in ~37 frames (≈ 0.6 s) — visibly damped.
