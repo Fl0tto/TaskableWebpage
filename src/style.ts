@@ -19,6 +19,7 @@ export const THEME = {
   textSecondary: '#525252',   // body text, descriptions
   textMuted:     '#A3A3A3',   // captions, labels, placeholders
   accent:        '#C8922A',  // CTA buttons, highlights — reuse legacy accent
+  complementary: '#03286a',  //complementary accent color used in conjunction with the main accent
 };
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────

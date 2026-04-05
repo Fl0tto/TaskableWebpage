@@ -182,8 +182,8 @@ export function HalftoneEffect({
       gridSize:     { value: gridSize },
       dotScale:     { value: dotScale },
       edgeSoft:     { value: edgeSoft },
-      dotColor:     { value: new THREE.Color(dotColor) },
-      bgColor:      { value: new THREE.Color(bgColor) },
+      dotColor:     { value: new THREE.Color(dotColor).convertLinearToSRGB() },
+      bgColor:      { value: new THREE.Color(bgColor).convertLinearToSRGB() },
       invertLum:    { value: invertLuminance ? 1.0 : 0.0 },
       colorMix:        { value: colorMix },
       sampleRadius:    { value: sampleRadius },
@@ -206,8 +206,8 @@ export function HalftoneEffect({
     mat.uniforms.gridSize.value     = gridSize
     mat.uniforms.dotScale.value     = dotScale
     mat.uniforms.edgeSoft.value     = edgeSoft
-    ;(mat.uniforms.dotColor.value  as THREE.Color).set(dotColor)
-    ;(mat.uniforms.bgColor.value   as THREE.Color).set(bgColor)
+    ;(mat.uniforms.dotColor.value  as THREE.Color).set(dotColor).convertLinearToSRGB()
+    ;(mat.uniforms.bgColor.value   as THREE.Color).set(bgColor).convertLinearToSRGB()
     mat.uniforms.invertLum.value    = invertLuminance ? 1.0 : 0.0
     mat.uniforms.colorMix.value        = colorMix
     mat.uniforms.sampleRadius.value    = sampleRadius
