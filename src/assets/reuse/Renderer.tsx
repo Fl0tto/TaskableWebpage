@@ -135,7 +135,7 @@ const RocketExhaust = ({ position, isMobile }: { position: [number, number, numb
 
   const ParticleShaderMaterial = useMemo(() => new THREE.ShaderMaterial({
     uniforms: {
-      color: { value: new THREE.Color(THEME.textPrimary) },
+      color: { value: new THREE.Color('black') },
     },
     vertexShader: `
       attribute float age;
@@ -309,7 +309,7 @@ const Renderer = () => {
           edgeSoft={.1}
           invertLuminance={true}
           colorMix={0}      // 0 = mono, 1 = scene-coloured dots
-          dotColor={THEME.textPrimary}
+          dotColor={THEME.complementary}
           bgColor={THEME.bg}
           sampleRadius={2}
           hideBackground={true}

@@ -2,6 +2,40 @@ import { Box } from '@mui/material';
 import type { ReactNode } from 'react';
 import { THEME, FONTS } from '../../style';
 
+/** Returns a copy of a hex colour with saturation scaled by `factor`. */
+function saturate(hex: string, factor: number): string {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  const l = (max + min) / 2;
+  let h = 0, s = 0;
+
+  if (d !== 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+
+  const newS = Math.min(1, s * factor);
+  const q = l < 0.5 ? l * (1 + newS) : l + newS - l * newS;
+  const p = 2 * l - q;
+  const hue = (t: number) => {
+    t = ((t % 1) + 1) % 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  };
+  const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
+  const [r2, g2, b2] = newS === 0 ? [l, l, l] : [hue(h + 1 / 3), hue(h), hue(h - 1 / 3)];
+  return `#${toHex(r2)}${toHex(g2)}${toHex(b2)}`;
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 // Only these four props are accessible from outside. All visual decisions
 // live exclusively inside this file.
@@ -73,11 +107,13 @@ const TYPE_STYLES = {
 
   // Primary CTA — filled, high contrast (e.g. hero "Get Started")
   Highlight: {
-    bg:          THEME.textPrimary,
+    bg:          THEME.accent,
     color:       THEME.bg,
-    border:      `1.5px solid ${THEME.textPrimary}`,
-    hoverBg:     '#252525',
-    hoverBorder: `1.5px solid #252525`,
+    backdropFilter: 'blur(0px)',
+    hoverBackdrop: 'blur(0px)',
+    border:      `1.5px solid ${THEME.border}`,
+    hoverBg:     saturate(THEME.accent, 1.25),
+    hoverBorder: `1.5px solid ${saturate(THEME.accent, 1.13)}`,
     cornerColor: THEME.bg,
   },
 
@@ -85,8 +121,10 @@ const TYPE_STYLES = {
   Active: {
     bg:          'transparent',
     color:       THEME.textPrimary,
+    backdropFilter: 'blur(1px)',
+    hoverBackdrop: 'blur(2px)',
     border:      `1.5px solid ${THEME.border}`,
-    hoverBg:     THEME.surface,
+    hoverBg:     'transparent',
     hoverBorder: `1.5px solid ${THEME.textMuted}`,
     cornerColor: THEME.textPrimary,
   },
@@ -95,6 +133,8 @@ const TYPE_STYLES = {
   Disabled: {
     bg:          'transparent',
     color:       THEME.textMuted,
+    backdropFilter: 'blur(0px)',
+    hoverBackdrop: 'blur(0px)',
     border:      `1.5px solid ${THEME.border}`,
     hoverBg:     'transparent',           // no hover state
     hoverBorder: `1.5px solid ${THEME.border}`,
@@ -105,6 +145,8 @@ const TYPE_STYLES = {
   Custom: {
     bg:          'transparent',
     color:       THEME.textSecondary,
+    backdropFilter: 'blur(0px)',
+    hoverBackdrop: 'blur(0px)',
     border:      `1.5px dashed ${THEME.border}`,
     hoverBg:     THEME.surface,
     hoverBorder: `1.5px dashed ${THEME.textMuted}`,
@@ -211,6 +253,7 @@ const TaskableButton = ({ buttonType, text, onClick, icon }: TaskableButtonProps
           backgroundColor: s.bg,
           color: s.color,
           border: s.border,
+          backdropFilter: s.backdropFilter,
 
           // ── Cursor ─────────────────────────────────────────────────────────
           cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -223,12 +266,14 @@ const TaskableButton = ({ buttonType, text, onClick, icon }: TaskableButtonProps
             'border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             'letter-spacing 0.3s ease',
             'transform 0.1s ease',
+            'backdrop-filter 0.22s ease',
           ].join(', '),
 
           // ── Hover & click states (non-Disabled only) ───────────────────────
           ...(!isDisabled && {
             '&:hover': {
               backgroundColor: s.hoverBg,
+              backdropFilter: s.hoverBackdrop,
               border: s.hoverBorder,
               borderRadius: '1rem',
               letterSpacing: BTN_LS_HOVER,

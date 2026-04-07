@@ -11,15 +11,15 @@ export const COLORS = {
 
 // ─── Clean light theme ────────────────────────────────────────────────────────
 export const THEME = {
-  bg:            '#FFFFFF',   // page background
-  bgAlt:         '#F8F8F8',   // subtle alternate background (sections, cards)
-  surface:       '#F2F2F2',   // elevated surfaces, input backgrounds
-  border:        '#E4E4E4',   // dividers, card borders
-  textPrimary:   '#0A0A0A',   // headings, high-emphasis text
-  textSecondary: '#525252',   // body text, descriptions
-  textMuted:     '#A3A3A3',   // captions, labels, placeholders
-  accent:        '#C8922A',  // CTA buttons, highlights — reuse legacy accent
-  complementary: '#03286a',  //complementary accent color used in conjunction with the main accent
+  bg:            '#F8F9FA',   // Very clean, cool off-white
+  bgAlt:         '#F1F3F5',   // Subtle light grey
+  surface:       '#FFFFFF',   // Pure white
+  border:        '#E9ECEF',   // Clean, soft border
+  textPrimary:   '#012033',   // Deepened navy (replaces harsh #0A0A0A black)
+  textSecondary: '#4A5E6D',   // Navy-tinted slate (replaces #525252 grey)
+  textMuted:     '#8E9FA9',   // Lighter blue-grey
+  accent:        '#C8922A',   // Your golden orange
+  complementary: '#013755',   // Your deep blue
 };
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────

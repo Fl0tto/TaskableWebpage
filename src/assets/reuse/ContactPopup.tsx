@@ -3,25 +3,23 @@ import { Box, CircularProgress, Modal } from '@mui/material';
 import { THEME, FONTS } from '../../style';
 import TaskableButton from './TaskableButton';
 import TaskableModelRenderer from './TaskableModelRenderer';
-import { Model as WebsiteRocket } from './WebsiteRocket';
-import {Model as HourglassModel } from './Models/Hourglass';
+import { Model as HourglassModel } from './Models/Hourglass';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface RequestTenantPopupProps {
+interface ContactPopupProps {
   open: boolean;
   onClose: () => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const EMAIL_RE     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const TENANT_ID_RE = /^[a-z0-9-]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isValidEmail = (v: string) => EMAIL_RE.test(v);
 
-const isValidEmail    = (v: string) => EMAIL_RE.test(v);
-const isValidTenantId = (v: string) => TENANT_ID_RE.test(v);
+const LAMBDA_URL = 'https://YOUR_LAMBDA_URL_HERE'; // TODO: replace with your API Gateway URL
 
-// ─── Shared field style ───────────────────────────────────────────────────────
+// ─── Shared field styles ──────────────────────────────────────────────────────
 
 const fieldSx = {
   width: '100%',
@@ -35,9 +33,15 @@ const fieldSx = {
   outline: 'none',
   transition: 'border-color 0.2s ease',
   boxSizing: 'border-box' as const,
-  '&:focus': {
-    borderColor: THEME.textMuted,
-  },
+  '&:focus': { borderColor: THEME.textMuted },
+};
+
+const textareaSx = {
+  ...fieldSx,
+  borderRadius: '1rem',
+  resize: 'vertical' as const,
+  minHeight: '7rem',
+  lineHeight: 1.6,
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -64,11 +68,13 @@ const Field = ({
   value,
   onChange,
   error,
+  onBlur,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   error?: boolean;
+  onBlur?: () => void;
 }) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
     <Label>{label}</Label>
@@ -77,10 +83,8 @@ const Field = ({
       type="text"
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-      sx={{
-        ...fieldSx,
-        ...(error && { borderColor: '#C0392B' }),
-      }}
+      onBlur={onBlur}
+      sx={{ ...fieldSx, ...(error && { borderColor: '#C0392B' }) }}
     />
   </Box>
 );
@@ -89,23 +93,27 @@ const Field = ({
 
 type Phase = 'form' | 'loading' | 'success' | 'fatalError';
 
-const EMPTY_FORM = { tenantId: '', company: '', email: '', firstName: '', lastName: '' };
+const EMPTY_FORM = {
+  email: '',
+  firstName: '',
+  lastName: '',
+  company: '',
+  subject: '',
+  message: '',
+};
 
-const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }) => {
-  const [fields, setFields] = useState(EMPTY_FORM);
-  const [emailTouched, setEmailTouched]       = useState(false);
-  const [tenantIdTouched, setTenantIdTouched] = useState(false);
-  const [phase, setPhase] = useState<Phase>('form');
+const ContactPopup: React.FC<ContactPopupProps> = ({ open, onClose }) => {
+  const [fields, setFields]           = useState(EMPTY_FORM);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [phase, setPhase]             = useState<Phase>('form');
   const [fatalMessage, setFatalMessage] = useState('');
   const [inlineError, setInlineError] = useState('');
   const inlineTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Reset everything when the popup opens fresh
   useEffect(() => {
     if (open) {
       setFields(EMPTY_FORM);
       setEmailTouched(false);
-      setTenantIdTouched(false);
       setPhase('form');
       setFatalMessage('');
       setInlineError('');
@@ -115,16 +123,13 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
   const setField = (key: keyof typeof EMPTY_FORM) => (v: string) =>
     setFields(f => ({ ...f, [key]: v }));
 
-  const emailInvalid    = emailTouched    && fields.email    !== '' && !isValidEmail(fields.email);
-  const tenantIdInvalid = tenantIdTouched && fields.tenantId !== '' && !isValidTenantId(fields.tenantId);
+  const emailInvalid = emailTouched && fields.email !== '' && !isValidEmail(fields.email);
+
   const allFilled =
-    fields.tenantId.trim() !== '' &&
-    isValidTenantId(fields.tenantId) &&
-    fields.company.trim() !== '' &&
     fields.email.trim() !== '' &&
+    isValidEmail(fields.email) &&
     fields.firstName.trim() !== '' &&
-    fields.lastName.trim() !== '' &&
-    isValidEmail(fields.email);
+    fields.message.trim() !== '';
 
   const showInlineError = (msg: string) => {
     setInlineError(msg);
@@ -132,46 +137,32 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
     inlineTimer.current = setTimeout(() => setInlineError(''), 3000);
   };
 
-  const handleConfirm = async () => {
+  const handleSubmit = async () => {
     setPhase('loading');
 
     const requestBody = {
-      slug:           fields.tenantId.trim(),
-      companyName:    fields.company.trim(),
-      adminEmail:     fields.email.trim(),
-      adminFirstName: fields.firstName.trim(),
-      adminLastName:  fields.lastName.trim(),
+      email:     fields.email.trim(),
+      firstName: fields.firstName.trim(),
+      lastName:  fields.lastName.trim() || undefined,
+      company:   fields.company.trim()  || undefined,
+      subject:   fields.subject.trim()  || undefined,
+      message:   fields.message.trim(),
     };
 
     try {
-      const res = await fetch(
-        'https://z2c1ip4oba.execute-api.eu-north-1.amazonaws.com/default/taskable-request-tenant',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        }
-      );
+      const res = await fetch(LAMBDA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
 
-      let responseBody: unknown = null;
-      try {
-        responseBody = await res.clone().json();
-      } catch {
-        responseBody = await res.clone().text();
-      }
-
-      if (res.status === 201) {
+      if (res.status === 200) {
         setPhase('success');
-      } else if (res.status === 409) {
-        setPhase('form');
-        showInlineError('This Tenant ID is already taken. Please choose a different one.');
       } else {
         setFatalMessage('Something went wrong. Please try again later.');
         setPhase('fatalError');
       }
-    } catch (err) {
-      console.error('Fetch error:', err);
-      console.groupEnd();
+    } catch {
       setFatalMessage('Something went wrong. Please try again later.');
       setPhase('fatalError');
     }
@@ -198,10 +189,10 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', py: '1rem', textAlign: 'center' }}>
           <Box sx={{ fontFamily: FONTS.body, fontSize: '1.5rem' }}>✓</Box>
           <Box sx={{ fontFamily: FONTS.body, fontSize: '0.9375rem', color: THEME.textSecondary, lineHeight: 1.6 }}>
-            Your test tenant has been created successfully.<br />
-            You will receive your admin password via email shortly.
+            Your message has been sent successfully.<br />
+            We'll get back to you as soon as possible.
           </Box>
-          <TaskableButton buttonType="Highlight" text="Confirm" onClick={handleClose} />
+          <TaskableButton buttonType="Highlight" text="Close" onClick={handleClose} />
         </Box>
       );
     }
@@ -212,7 +203,7 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
           <Box sx={{ fontFamily: FONTS.body, fontSize: '0.9375rem', color: THEME.textSecondary, lineHeight: 1.6 }}>
             {fatalMessage}
           </Box>
-          <TaskableButton buttonType="Active" text="Confirm" onClick={handleClose} />
+          <TaskableButton buttonType="Active" text="Close" onClick={handleClose} />
         </Box>
       );
     }
@@ -221,72 +212,14 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-        {/* URL Prefix — with .taskable.app suffix */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-          <Label>URL Prefix</Label>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: THEME.surface,
-              border: `1.5px solid ${tenantIdInvalid ? '#C0392B' : THEME.border}`,
-              borderRadius: '999px',
-              transition: 'border-color 0.2s ease',
-              '&:focus-within': {
-                borderColor: tenantIdInvalid ? '#C0392B' : THEME.textMuted,
-              },
-            }}
-          >
-            <Box
-              component="input"
-              type="text"
-              value={fields.tenantId}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setField('tenantId')(e.target.value)}
-              onBlur={() => setTenantIdTouched(true)}
-              sx={{
-                flex: 1,
-                fontFamily: FONTS.body,
-                fontSize: '0.9375rem',
-                color: THEME.textPrimary,
-                backgroundColor: 'transparent',
-                border: 'none',
-                padding: '0.6875rem 0 0.6875rem 1.25rem',
-                outline: 'none',
-                minWidth: 0,
-                boxSizing: 'border-box' as const,
-              }}
-            />
-            <Box
-              sx={{
-                fontFamily: FONTS.body,
-                fontSize: '0.8125rem',
-                color: THEME.textMuted,
-                fontWeight: 500,
-                pr: '1.25rem',
-                pl: '0.25rem',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                userSelect: 'none',
-              }}
-            >
-              .taskable.app
-            </Box>
-          </Box>
-          {tenantIdInvalid && (
-            <Box sx={{ fontFamily: FONTS.body, fontSize: '0.75rem', color: '#C0392B', mt: '0.25rem', pl: '1rem' }}>
-              Only lowercase letters, numbers, and hyphens ( - ) are allowed.
-            </Box>
-          )}
-        </Box>
-
         <Box sx={{ display: 'flex', gap: '1rem' }}>
-          <Field label="First Name" value={fields.firstName} onChange={setField('firstName')} />
-          <Field label="Last Name"  value={fields.lastName}  onChange={setField('lastName')} />
+          <Field label="First Name *" value={fields.firstName} onChange={setField('firstName')} />
+          <Field label="Last Name"    value={fields.lastName}  onChange={setField('lastName')}  />
         </Box>
 
-        {/* Email — own row for error hint */}
+        {/* Email */}
         <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-          <Label>Email</Label>
+          <Label>Email *</Label>
           <Box
             component="input"
             type="text"
@@ -302,9 +235,21 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
           )}
         </Box>
 
-        <Field label="Company" value={fields.company} onChange={setField('company')} />
+        <Field label="Company"  value={fields.company} onChange={setField('company')} />
+        <Field label="Subject"  value={fields.subject} onChange={setField('subject')} />
 
-        {/* Inline conflict / transient error */}
+        {/* Message */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+          <Label>Message *</Label>
+          <Box
+            component="textarea"
+            value={fields.message}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setField('message')(e.target.value)}
+            sx={textareaSx}
+          />
+        </Box>
+
+        {/* Inline error */}
         <Box
           sx={{
             fontFamily: FONTS.body,
@@ -315,16 +260,16 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
             opacity: inlineError ? 1 : 0,
           }}
         >
-          {inlineError}
+          {inlineError || ' '}
         </Box>
 
         {/* Actions */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', mt: '0.25rem' }}>
-          <TaskableButton buttonType="Active"    text="Cancel"  onClick={handleClose} />
+          <TaskableButton buttonType="Active" text="Cancel" onClick={handleClose} />
           <TaskableButton
             buttonType={allFilled ? 'Highlight' : 'Disabled'}
-            text="Confirm"
-            onClick={allFilled ? handleConfirm : undefined}
+            text="Send"
+            onClick={allFilled ? handleSubmit : undefined}
           />
         </Box>
       </Box>
@@ -351,40 +296,7 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
           minHeight: '420px',
         }}
       >
-        {/* ── Left panel (1/3) — accent placeholder ──────────────────────── */}
-        <Box
-          sx={{
-            width: '33.333%',
-            flexShrink: 0,
-            backgroundColor: THEME.bgAlt,
-            borderRight: `1.5px solid ${THEME.border}`,
-
-            overflow: 'hidden',
-            p: '0px',
-            display: { xs: 'none', sm: 'flex' },
-            flexDirection: 'column',
-          }}
-        >
-          <Box sx={{ flex: 1, borderRadius: '0px', overflow: 'hidden' }}>
-            <TaskableModelRenderer
-              model={HourglassModel}
-              modelScale={3}
-              modelRotation={[.3, 0, 0]}
-              modelOffset={[0,0,0]}
-              gridSize={77}
-              cameraDistance={7}
-              rotationVelocity={Math.PI / 2}
-              bobAmplitude={2.5}
-              bobFrequency={.33}
-              foregroundColor={THEME.accent}
-              backgroundColor={THEME.complementary}
-              width="100%"
-              height="100%"
-            />
-          </Box>
-        </Box>
-
-        {/* ── Right panel (2/3) — form ────────────────────────────────────── */}
+        {/* ── Left panel (2/3) — form ─────────────────────────────────────── */}
         <Box
           sx={{
             flex: 1,
@@ -394,7 +306,6 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
             minWidth: 0,
           }}
         >
-          {/* Header */}
           <Box
             sx={{
               fontFamily: FONTS.body,
@@ -408,14 +319,45 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
               borderBottom: `1px solid ${THEME.border}`,
             }}
           >
-            Request a test tenant
+            Contact us
           </Box>
 
           {renderContent()}
+        </Box>
+
+        {/* ── Right panel (1/3) — model ───────────────────────────────────── */}
+        <Box
+          sx={{
+            width: '33.333%',
+            flexShrink: 0,
+            backgroundColor: THEME.bgAlt,
+            borderLeft: `1.5px solid ${THEME.border}`,
+            overflow: 'hidden',
+            display: { xs: 'none', sm: 'flex' },
+            flexDirection: 'column',
+          }}
+        >
+          <Box sx={{ flex: 1, overflow: 'hidden' }}>
+            <TaskableModelRenderer
+              model={HourglassModel}
+              modelScale={3}
+              modelRotation={[.3, 0, 0]}
+              modelOffset={[0, 0, 0]}
+              gridSize={77}
+              cameraDistance={7}
+              rotationVelocity={Math.PI / 2}
+              bobAmplitude={2.5}
+              bobFrequency={0.33}
+              foregroundColor={THEME.accent}
+              backgroundColor={THEME.complementary}
+              width="100%"
+              height="100%"
+            />
+          </Box>
         </Box>
       </Box>
     </Modal>
   );
 };
 
-export default RequestTenantPopup;
+export default ContactPopup;
