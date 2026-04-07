@@ -3,7 +3,7 @@ import { Box, CircularProgress, Modal } from '@mui/material';
 import { THEME, FONTS } from '../../style';
 import TaskableButton from './TaskableButton';
 import TaskableModelRenderer from './TaskableModelRenderer';
-import { Model as HourglassModel } from './Models/Hourglass';
+import { Model as PaperplaneModel } from './Models/Paperplane';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -333,15 +333,16 @@ const ContactPopup: React.FC<ContactPopupProps> = ({ open, onClose }) => {
             backgroundColor: THEME.bgAlt,
             borderLeft: `1.5px solid ${THEME.border}`,
             overflow: 'hidden',
+            p: '10px',
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
           }}
         >
-          <Box sx={{ flex: 1, overflow: 'hidden' }}>
+          <Box sx={{ flex: 1, borderRadius: '16px', overflow: 'hidden' }}>
             <TaskableModelRenderer
-              model={HourglassModel}
-              modelScale={3}
-              modelRotation={[.3, 0, 0]}
+              model={PaperplaneModel}
+              modelScale={1}
+              modelRotation={[0, 0, -.2]}
               modelOffset={[0, 0, 0]}
               gridSize={77}
               cameraDistance={7}

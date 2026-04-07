@@ -52,7 +52,7 @@ const Hero = () => {
 
             {/* CTA buttons */}
             <Box sx={{ mt: 6, display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center', pointerEvents: 'auto' }}>
-              <TaskableButton buttonType="Highlight" text="Get Started" />
+              <TaskableButton buttonType="Highlight" text="Get Started" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })} />
               <TaskableButton buttonType="Active" text="Learn More" />
             </Box>
           </Box>

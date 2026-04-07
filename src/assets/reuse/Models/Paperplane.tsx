@@ -6,18 +6,19 @@ Command: npx gltfjsx@6.5.3 Paperplane.glb -t
 import * as THREE from 'three'
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
-import { GLTF } from 'three-stdlib'
+import type { ThreeElements } from '@react-three/fiber'
+import type { GLTF } from 'three-stdlib'
 
 type GLTFResult = GLTF & {
   nodes: {
     Plane: THREE.Mesh
   }
   materials: {}
-  animations: GLTFAction[]
+  animations: THREE.AnimationClip[]
 }
 
-export function Model(props: JSX.IntrinsicElements['group']) {
-  const { nodes, materials } = useGLTF('/Paperplane.glb') as GLTFResult
+export function Model(props: ThreeElements['group']) {
+  const { nodes, materials } = useGLTF('/Paperplane.glb') as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Plane.geometry} material={nodes.Plane.material} rotation={[0, 0, -0.33]} />

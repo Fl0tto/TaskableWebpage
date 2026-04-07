@@ -1,11 +1,13 @@
 import { Box, Typography } from '@mui/material';
 import { TEXT_STYLES, THEME } from '../../style';
-import {useState} from 'react'
+import { useState } from 'react'
 import PricingCard from '../../assets/reuse/PricingCard';
 import RequestTenantPopup from '../../assets/reuse/RequestTenantPopup';
+import ContactPopup from '../../assets/reuse/ContactPopup';
 
 const Pricing = () => {
-  const [popupOpen, setPopupOpen] = useState(false);
+  const [tenantPopupOpen, setTenantPopupOpen] = useState(false);
+  const [contactPopupOpen, setContactPopupOpen] = useState(false);
 
   // TODO: Review and finalise pricing data
   const pricingData = [
@@ -15,7 +17,7 @@ const Pricing = () => {
       buttonText: 'Start for free',
       features: ['14-day free trial', 'No credit card required'],
       highlight: false,
-      onClick: () => setPopupOpen(true),
+      onClick: () => setTenantPopupOpen(true),
     },
     {
       title: 'Pro',
@@ -23,6 +25,7 @@ const Pricing = () => {
       buttonText: 'Get started',
       features: ['Full access to all features', 'Get going today', 'Price per user'],
       highlight: true,
+      onClick: () => setTenantPopupOpen(true),
     },
     {
       title: 'Enterprise',
@@ -30,6 +33,7 @@ const Pricing = () => {
       buttonText: 'Request a quote',
       features: ['Implementation & integration support', 'Priority access', 'Fully custom pricing model'],
       highlight: false,
+      onClick: () => setContactPopupOpen(true),
     },
   ];
 
@@ -43,7 +47,8 @@ const Pricing = () => {
         backgroundColor: THEME.bg,
       }}
     >
-      <RequestTenantPopup open={popupOpen} onClose={() => setPopupOpen(false)} />
+      <RequestTenantPopup open={tenantPopupOpen} onClose={() => setTenantPopupOpen(false)} />
+      <ContactPopup open={contactPopupOpen} onClose={() => setContactPopupOpen(false)} />
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
 
         {/* Section label + heading */}

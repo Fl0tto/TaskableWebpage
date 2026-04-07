@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import FluidSim from './FluidSim';
 import { THEME } from '../../style';
 import TaskableLogo from './TaskableLogo';
+import ContactPopup from './ContactPopup';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,6 +40,7 @@ const scrollToSection = (id: string) => {
 const Navbar = () => {
   const navRef = useRef<HTMLDivElement>(null);
   const [fluidVisible, setFluidVisible] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md')); // 'md' is 900px
 
@@ -107,6 +109,8 @@ const Navbar = () => {
 
   return (
     <>
+      <ContactPopup open={contactOpen} onClose={() => setContactOpen(false)} />
+
       {/* Fluid sim renders behind navbar, clipped to navbar area */}
       {fluidVisible && !isMobile && (
         <Box sx={{
@@ -160,8 +164,9 @@ const Navbar = () => {
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 4, alignItems: 'center', zIndex: 2 }}>
             <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('features')}>Features</Typography>
-            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('get-started')}>Get Started</Typography>
-            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('about')}>About</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('pricing')}>Get Started</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => scrollToSection('footer')}>About</Typography>
+            <Typography variant="button" sx={{ cursor: 'pointer', color: 'inherit' }} onClick={() => setContactOpen(true)}>Contact Us</Typography>
           </Box>
 
           <IconButton sx={{ display: { xs: 'flex', md: 'none' }, color: 'inherit', zIndex: 2 }}>

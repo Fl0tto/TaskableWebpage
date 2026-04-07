@@ -360,12 +360,12 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
             borderRight: `1.5px solid ${THEME.border}`,
 
             overflow: 'hidden',
-            p: '0px',
+            p: '10px',
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
           }}
         >
-          <Box sx={{ flex: 1, borderRadius: '0px', overflow: 'hidden' }}>
+          <Box sx={{ flex: 1, borderRadius: '16px', overflow: 'hidden' }}>
             <TaskableModelRenderer
               model={HourglassModel}
               modelScale={3}

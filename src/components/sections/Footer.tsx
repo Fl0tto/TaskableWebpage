@@ -5,6 +5,7 @@ const Footer = () => {
   return (
     <Box
       component="footer"
+      id="footer"
       sx={{
         borderTop: `1px solid ${THEME.border}`,
         py: { xs: 6, md: 8 },
