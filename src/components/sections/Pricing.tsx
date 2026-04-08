@@ -47,7 +47,7 @@ const Pricing = () => {
         backgroundColor: THEME.bg,
       }}
     >
-      <RequestTenantPopup open={tenantPopupOpen} onClose={() => setTenantPopupOpen(false)} />
+      <RequestTenantPopup open={tenantPopupOpen} onClose={() => setTenantPopupOpen(false)} onOpenContact={() => setContactPopupOpen(true)} />
       <ContactPopup open={contactPopupOpen} onClose={() => setContactPopupOpen(false)} />
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
 

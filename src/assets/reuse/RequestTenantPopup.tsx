@@ -11,6 +11,7 @@ import {Model as HourglassModel } from './Models/Hourglass';
 interface RequestTenantPopupProps {
   open: boolean;
   onClose: () => void;
+  onOpenContact?: () => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -87,11 +88,11 @@ const Field = ({
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-type Phase = 'form' | 'loading' | 'success' | 'fatalError';
+type Phase = 'form' | 'loading' | 'success' | 'rateLimited' | 'fatalError';
 
 const EMPTY_FORM = { tenantId: '', company: '', email: '', firstName: '', lastName: '' };
 
-const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }) => {
+const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose, onOpenContact }) => {
   const [fields, setFields] = useState(EMPTY_FORM);
   const [emailTouched, setEmailTouched]       = useState(false);
   const [tenantIdTouched, setTenantIdTouched] = useState(false);
@@ -165,6 +166,8 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
       } else if (res.status === 409) {
         setPhase('form');
         showInlineError('This Tenant ID is already taken. Please choose a different one.');
+      } else if (res.status === 429) {
+        setPhase('rateLimited');
       } else {
         setFatalMessage('Something went wrong. Please try again later.');
         setPhase('fatalError');
@@ -202,6 +205,24 @@ const RequestTenantPopup: React.FC<RequestTenantPopupProps> = ({ open, onClose }
             You will receive your admin password via email shortly.
           </Box>
           <TaskableButton buttonType="Highlight" text="Confirm" onClick={handleClose} />
+        </Box>
+      );
+    }
+
+    if (phase === 'rateLimited') {
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', py: '1rem', textAlign: 'center' }}>
+          <Box sx={{ fontFamily: FONTS.body, fontSize: '0.9375rem', color: THEME.textSecondary, lineHeight: 1.6 }}>
+            It looks like a trial tenant was recently requested from your connection.<br /><br />
+            Please use that tenant, or check your email for the login details.<br />
+            If you keep running into issues, feel free to reach out via our contact form.
+          </Box>
+          <Box sx={{ display: 'flex', gap: '0.75rem' }}>
+            <TaskableButton buttonType="Active" text="Close" onClick={handleClose} />
+            {onOpenContact && (
+              <TaskableButton buttonType="Highlight" text="Contact us" onClick={() => { handleClose(); onOpenContact(); }} />
+            )}
+          </Box>
         </Box>
       );
     }
