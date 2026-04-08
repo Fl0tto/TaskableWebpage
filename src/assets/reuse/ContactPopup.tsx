@@ -284,7 +284,7 @@ const ContactPopup: React.FC<ContactPopupProps> = ({ open, onClose }) => {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: { xs: '92vw', md: '700px' },
+          width: { xs: '92vw', md: '900px' },
           backgroundColor: THEME.bg,
           border: `1.5px solid ${THEME.border}`,
           borderRadius: '20px',
@@ -328,7 +328,7 @@ const ContactPopup: React.FC<ContactPopupProps> = ({ open, onClose }) => {
         {/* ── Right panel (1/3) — model ───────────────────────────────────── */}
         <Box
           sx={{
-            width: '33.333%',
+            width: '40%',
             flexShrink: 0,
             backgroundColor: THEME.bgAlt,
             borderLeft: `1.5px solid ${THEME.border}`,

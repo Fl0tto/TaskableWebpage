@@ -15,7 +15,7 @@ export const THEME = {
   bgAlt:         '#F1F3F5',   // Subtle light grey
   surface:       '#FFFFFF',   // Pure white
   border:        '#E9ECEF',   // Clean, soft border
-  textPrimary:   '#012033',   // Deepened navy (replaces harsh #0A0A0A black)
+  textPrimary:   '#2F2E36',   // Deepened navy (replaces harsh #0A0A0A black)
   textSecondary: '#4A5E6D',   // Navy-tinted slate (replaces #525252 grey)
   textMuted:     '#8E9FA9',   // Lighter blue-grey
   accent:        '#C8922A',   // Your golden orange
