@@ -24,6 +24,7 @@ export const THEME = {
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 export const FONTS = {
+  //heading: "'DM Mono', 'JetBrains Mono', monospace",
   heading: "'Inter', 'Helvetica Neue', Arial, sans-serif",
   body:    "'Inter', 'Helvetica Neue', Arial, sans-serif",
   mono:    "'JetBrains Mono', 'Courier New', Courier, monospace",
